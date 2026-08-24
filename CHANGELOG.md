@@ -18,3 +18,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `composer build` now runs the integration suite as well, and CI pins each
   supported PHPUnit major in its own matrix job.
 - Added `@psalm-require-extends TestCase` to the trait.
+- An integration fixture pins that a test whose only check is an understudy
+  expectation is not reported risky by PHPUnit's strictness about tests that
+  assert nothing.

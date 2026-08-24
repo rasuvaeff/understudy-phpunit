@@ -88,6 +88,14 @@ make release-check
   so it must run at all and its failure must be the one reported. Verifying
   first meant an unmet expectation threw ahead of the parent chain and the
   user's post-conditions were silently skipped.
+- **`addToAssertionCount(1)` lands before PHPUnit's own risky verdict, and
+  that is load-bearing.** A test whose only check is an understudy expectation
+  asserts nothing itself, and PHPUnit is strict about that by default. The
+  trait's count reaches the runner in time, so such a test is not risky —
+  where the Testo adapter, being outer to the equivalent decision, has to take
+  the verdict back after the fact instead. Pinned by the
+  `NoAssertionsOfItsOwn` fixture, control test included: without the control
+  proving the strict setting is armed, the other half passing means nothing.
 - **The integration suite is part of `composer build`.** It is the only place
   the PHPUnit process-isolation cell and the `addToAssertionCount(1)` contract
   are exercised against a real runner; a suite no gate runs is a suite that

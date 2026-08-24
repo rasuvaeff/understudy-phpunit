@@ -62,6 +62,21 @@ final class PhpunitLifecycleIntegrationTest
         Assert::string($output)->contains('OK (1 test, 2 assertions)');
     }
 
+    public function expectationOnlyTestIsNotRiskyForNotAsserting(): void
+    {
+        [$exit, $output] = $this->runPhpunit('NoAssertionsOfItsOwn');
+
+        // The control test carries no trait and asserts nothing, so PHPUnit's
+        // strictness must catch it — that is what proves the setting is armed.
+        Assert::same($this->summaryCount($output, 'Risky'), 1);
+        Assert::string($output)->contains('ControlTest::testAssertsNothingAndHasNoTrait');
+        // And the expectation-only test must not be among them: the trait's
+        // assertion lands before the verdict.
+        Assert::false(str_contains($output, 'ExpectationOnlyTest::testBodyAssertsNothingItself'));
+        Assert::string($output)->contains('Tests: 2, Assertions: 1, Risky: 1');
+        Assert::same($exit, 0);
+    }
+
     /**
      * @return array{int, string}
      */
