@@ -59,8 +59,11 @@ final class UnderstudyPHPUnitIntegrationTest
             Assert::instanceOf($failure->getPrevious(), VerificationFailed::class);
         }
 
-        // The trait does not verify twice: post-conditions threw before the
-        // count was touched, and the context is still dropped by hand here.
+        // The failed verification is still one assertion attempt; the
+        // context is dropped by hand here because this unit fixture bypasses
+        // PHPUnit's lifecycle attributes.
+        Assert::same($test->numberOfAssertionsPerformed(), 1);
+
         Understudy::reset();
     }
 

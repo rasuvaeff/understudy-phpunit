@@ -24,6 +24,8 @@ final class UnderstudyPHPUnitIntegrationBench
 {
     private static ?SpyUsingTrait $test = null;
 
+    private static ?BareTestCase $bare = null;
+
     // --- Wrapping post-conditions -------------------------------------------
 
     #[Bench(['bare TestCase' => [self::class, 'barePostConditions']], calls: 10_000)]
@@ -34,7 +36,7 @@ final class UnderstudyPHPUnitIntegrationBench
 
     public static function barePostConditions(): void
     {
-        (new BareTestCase('bench'))->runPostConditions();
+        (self::$bare ??= new BareTestCase('bench'))->runPostConditions();
     }
 
     // --- Full lifecycle around a real double ---------------------------------
@@ -94,10 +96,8 @@ final class UnderstudyPHPUnitIntegrationBench
  */
 final class BareTestCase extends TestCase
 {
-    use \Rasuvaeff\Understudy\PhpUnit\UnderstudyPHPUnitIntegration;
-
     public function runPostConditions(): void
     {
-        $this->assertPostConditions();
+        parent::assertPostConditions();
     }
 }

@@ -27,6 +27,8 @@ final class PhpunitLifecycleIntegrationTest
             ->contains('open(7)')
             ->contains('never');
         Assert::same($this->summaryCount($output, 'Failures'), 1);
+        Assert::same($this->summaryCount($output, 'Risky'), 0);
+        Assert::string($output)->contains('Tests: 1, Assertions: 1, Failures: 1');
     }
 
     public function originalFailureWinsOverVerification(): void
@@ -49,6 +51,7 @@ final class PhpunitLifecycleIntegrationTest
         Assert::string($output)->contains('never used');
         // The used stub passes; only the configured-but-unused one fails.
         Assert::same($this->summaryCount($output, 'Failures'), 1);
+        Assert::same($this->summaryCount($output, 'Risky'), 0);
         Assert::string($output)->contains('Tests: 2');
     }
 

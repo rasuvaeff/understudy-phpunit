@@ -102,13 +102,15 @@ trait UnderstudyPHPUnitIntegration
     {
         parent::assertPostConditions();
 
+        // Verification is an assertion attempt even when it reports an unmet
+        // expectation. Count it before the exception can leave this method.
+        $this->addToAssertionCount(1);
+
         try {
             Understudy::verifyAll($this->understudyStrictStubs());
         } catch (VerificationFailed $failure) {
             throw new AssertionFailedError($failure->getMessage(), $failure->getCode(), $failure);
         }
-
-        $this->addToAssertionCount(1);
     }
 
     /**
