@@ -17,6 +17,8 @@ composer require --dev rasuvaeff/understudy-phpunit
 - An `#[Before]` guard fails with a diagnostic when the previous context was not idle.
 - Override `understudyStrictStubs(): bool` in a base class to fail unused stubs project-wide. Default: false.
 - If the class overrides `assertPostConditions()`, compose explicitly with trait alias (`as understudyAssertPostConditions`) — silent shadowing disables verification.
+- The trait calls `parent::assertPostConditions()` BEFORE verifying: your own post-conditions always run, and their failure is reported first.
+- Verification adds exactly 1 to the PHPUnit assertion count.
 - Pest: import `expect as expectCall`, or use `Understudy::expect(...)`.
 
 ## Typical test

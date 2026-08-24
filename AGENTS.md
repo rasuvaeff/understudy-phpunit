@@ -83,6 +83,16 @@ make release-check
   untouched; always reset. The reset lives in `#[After]`, not in post-
   conditions, precisely because PHPUnit skips post-conditions after a failing
   body — that ordering IS why original failures are never masked.
+- **`parent::assertPostConditions()` runs BEFORE verification.** A post-
+  condition the user wrote is closer to the test body than this bookkeeping,
+  so it must run at all and its failure must be the one reported. Verifying
+  first meant an unmet expectation threw ahead of the parent chain and the
+  user's post-conditions were silently skipped.
+- **The integration suite is part of `composer build`.** It is the only place
+  the PHPUnit process-isolation cell and the `addToAssertionCount(1)` contract
+  are exercised against a real runner; a suite no gate runs is a suite that
+  rots. `phpunit-versions` in CI pins each supported PHPUnit major separately,
+  because `composer install` only ever resolves one of the three.
 - **A verification failure must surface as an assertion failure**, wrapped in
   `AssertionFailedError` with the core's `VerificationFailed` as previous.
   Letting it propagate raw would report a broken expectation as an error and

@@ -24,16 +24,3 @@ class ChainedSpyBase extends TestCase
         parent::assertPostConditions();
     }
 }
-
-/**
- * @internal
- */
-final class ChainedSpyUsingTrait extends ChainedSpyBase
-{
-    use \Rasuvaeff\Understudy\PhpUnit\UnderstudyPHPUnitIntegration;
-
-    public function runPostConditions(): void
-    {
-        $this->assertPostConditions();
-    }
-}

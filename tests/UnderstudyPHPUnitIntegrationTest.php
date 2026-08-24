@@ -146,6 +146,45 @@ final class UnderstudyPHPUnitIntegrationTest
         Assert::true(ChainedSpyBase::$parentRan);
     }
 
+    public function parentChainRunsEvenWhenVerificationFails(): void
+    {
+        // The user's own post-conditions must not be skipped by an unmet
+        // expectation: they run ahead of the bookkeeping, not behind it.
+        $test = new ChainedSpyUsingTrait('probe');
+        $test->declareUnmetExpectation();
+
+        ChainedSpyBase::$parentRan = false;
+
+        try {
+            $test->runPostConditions();
+
+            Assert::fail('Expected an AssertionFailedError for the unmet expectation');
+        } catch (AssertionFailedError $failure) {
+            Assert::string($failure->getMessage())->contains('hit(');
+        }
+
+        Assert::true(ChainedSpyBase::$parentRan);
+
+        Understudy::reset();
+    }
+
+    public function verificationCountsAsOneAssertion(): void
+    {
+        // PHPUnit renamed the getter between supported majors, so this reads
+        // the number the runner itself reports rather than a version-specific
+        // accessor of the count.
+        $test = new SpyUsingTrait('probe');
+        $test->declareSatisfiedExpectation();
+
+        $before = $test->numberOfAssertionsPerformed();
+
+        $test->runPostConditions();
+
+        Assert::same($test->numberOfAssertionsPerformed() - $before, 1);
+
+        $test->runReset();
+    }
+
     public function aClassWithoutTheTraitLeavesItsDoublesUnverified(): void
     {
         // The control group: without the trait, an unmet expectation is nobody's

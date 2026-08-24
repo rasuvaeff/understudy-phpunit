@@ -12,3 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `#[After]` hook, `#[Before]` guard over leaked contexts, optional
   project-wide strict stubs through `understudyStrictStubs()`. PHPUnit
   11.5/12/13; Pest works through `uses()`.
+- Changed: `parent::assertPostConditions()` now runs before verification, so a
+  base class's own post-conditions are no longer skipped when an expectation
+  is unmet.
+- `composer build` now runs the integration suite as well, and CI pins each
+  supported PHPUnit major in its own matrix job.
+- Added `@psalm-require-extends TestCase` to the trait.

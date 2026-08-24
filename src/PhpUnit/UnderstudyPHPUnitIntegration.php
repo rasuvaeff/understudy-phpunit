@@ -59,6 +59,8 @@ use Rasuvaeff\Understudy\Understudy;
  * ```
  *
  * @api
+ *
+ * @psalm-require-extends TestCase
  */
 trait UnderstudyPHPUnitIntegration
 {
@@ -90,17 +92,23 @@ trait UnderstudyPHPUnitIntegration
         Understudy::reset();
     }
 
+    /**
+     * The parent chain runs FIRST: a post-condition the user wrote themselves
+     * is closer to the test body than this bookkeeping, so its failure is the
+     * one worth reporting — and it must run at all, which it would not if an
+     * unmet expectation threw ahead of it.
+     */
     protected function assertPostConditions(): void
     {
+        parent::assertPostConditions();
+
         try {
             Understudy::verifyAll($this->understudyStrictStubs());
-
-            $this->addToAssertionCount(1);
         } catch (VerificationFailed $failure) {
             throw new AssertionFailedError($failure->getMessage(), $failure->getCode(), $failure);
         }
 
-        parent::assertPostConditions();
+        $this->addToAssertionCount(1);
     }
 
     /**

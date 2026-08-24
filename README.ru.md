@@ -100,10 +100,15 @@ use Rasuvaeff\Understudy\PhpUnit\UnderstudyPHPUnitIntegration {
 
 protected function assertPostConditions(): void
 {
-    $this->understudyAssertPostConditions();
     // ваши post-conditions ...
+    $this->understudyAssertPostConditions();
 }
 ```
+
+Трейт вызывает `parent::assertPostConditions()` до верификации, поэтому ваши
+собственные post-conditions выполняются всегда, а их провал сообщается раньше
+неисполненного ожидания — выигрывает проверка, которая ближе к телу теста. В
+явной композиции сохраняйте тот же порядок.
 
 ### Pest
 

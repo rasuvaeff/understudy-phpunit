@@ -71,7 +71,8 @@
             "@require-checker",
             "@cs",
             "@psalm",
-            "@test"
+            "@test",
+            "@test:integration"
         ],
         "cs": "php-cs-fixer fix --dry-run --diff --config=.php-cs-fixer.php",
         "cs:fix": "php-cs-fixer fix --diff --config=.php-cs-fixer.php",

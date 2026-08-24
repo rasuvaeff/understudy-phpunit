@@ -100,10 +100,15 @@ use Rasuvaeff\Understudy\PhpUnit\UnderstudyPHPUnitIntegration {
 
 protected function assertPostConditions(): void
 {
-    $this->understudyAssertPostConditions();
     // your post-conditions ...
+    $this->understudyAssertPostConditions();
 }
 ```
+
+The trait runs `parent::assertPostConditions()` before verifying, so your own
+post-conditions always run and their failure is reported ahead of an unmet
+expectation — the check closer to the test body wins. Keep that order in an
+explicit composition too.
 
 ### Pest
 
