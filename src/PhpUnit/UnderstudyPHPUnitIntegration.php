@@ -1,0 +1,116 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Rasuvaeff\Understudy\PhpUnit;
+
+use PHPUnit\Framework\AssertionFailedError;
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
+use PHPUnit\Framework\TestCase;
+use Rasuvaeff\Understudy\Exception\VerificationFailed;
+use Rasuvaeff\Understudy\Understudy;
+
+/**
+ * Ends every PHPUnit test with understudy's own bookkeeping done for it.
+ *
+ * ```php
+ * final class CheckoutTest extends TestCase
+ * {
+ *     use UnderstudyPHPUnitIntegration;
+ *
+ *     public function testChargesForTheCart(): void
+ *     {
+ *         $books = Understudy::for(BookRepositoryInterface::class);
+ *         when(fn () => $books->find(7))->returns(new Book(7));
+ *
+ *         (new Checkout($books))->charge([7]);
+ *
+ *         expect(fn () => $books->find(7));   // verified for you
+ *     }
+ * }
+ * ```
+ *
+ * On a test that reached {@see TestCase::assertPostConditions()} — that is,
+ * passed its body — the whole context is verified: an `expect()` the code
+ * never fulfilled fails the test as an assertion failure. A test whose body
+ * threw keeps its own exception untouched; verification would only mask the
+ * error that actually happened. Either way the context is reset, so nothing
+ * leaks into the next test.
+ *
+ * A base class may flip strict stubbing for a whole project by overriding
+ * {@see understudyStrictStubs()}.
+ *
+ * If the class also overrides `assertPostConditions()` itself, PHP resolves
+ * the conflict silently in favour of the class — the trait's verification
+ * would stop running without any error. Compose explicitly instead:
+ *
+ * ```php
+ * use Rasuvaeff\Understudy\PhpUnit\UnderstudyPHPUnitIntegration {
+ *     UnderstudyPHPUnitIntegration::assertPostConditions
+ *         as understudyAssertPostConditions;
+ * }
+ *
+ * protected function assertPostConditions(): void
+ * {
+ *     $this->understudyAssertPostConditions();
+ *     // your post-conditions ...
+ * }
+ * ```
+ *
+ * @api
+ */
+trait UnderstudyPHPUnitIntegration
+{
+    /**
+     * Refuses to start a test over a context some earlier test left behind —
+     * that is what a broken integration looks like, and the doubles in it
+     * would answer this test too.
+     */
+    #[Before]
+    protected function understudyPrepareContext(): void
+    {
+        if (!Understudy::idle()) {
+            throw new AssertionFailedError(
+                'The current execution context still holds understudies before this test started. '
+                . 'Some earlier test skipped cleanup: is the integration trait used by every '
+                . 'class that creates doubles, and did an override swallow assertPostConditions()?',
+            );
+        }
+    }
+
+    /**
+     * Drops the context unconditionally. PHPUnit does not reach
+     * `assertPostConditions()` after a failing body, so this — not that
+     * method — is where cleanup is guaranteed to happen.
+     */
+    #[After]
+    protected function understudyResetContext(): void
+    {
+        Understudy::reset();
+    }
+
+    protected function assertPostConditions(): void
+    {
+        try {
+            Understudy::verifyAll($this->understudyStrictStubs());
+
+            $this->addToAssertionCount(1);
+        } catch (VerificationFailed $failure) {
+            throw new AssertionFailedError($failure->getMessage(), $failure->getCode(), $failure);
+        }
+
+        parent::assertPostConditions();
+    }
+
+    /**
+     * Whether stubs configured but never called should fail their test.
+     *
+     * Override in a project-wide base class to turn strictness on everywhere;
+     * per-double strictness stays available through `Understudy::strict()`.
+     */
+    protected function understudyStrictStubs(): bool
+    {
+        return false;
+    }
+}

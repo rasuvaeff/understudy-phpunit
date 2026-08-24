@@ -1,0 +1,52 @@
+# understudy-phpunit
+
+PHPUnit adapter for rasuvaeff/understudy (test double library: `when(fn () => $repo->find(123))->returns($book)`).
+
+## Install
+
+```bash
+composer require --dev rasuvaeff/understudy-phpunit
+```
+
+## Rules
+
+- Add `use UnderstudyPHPUnitIntegration;` inside the test class.
+- After a body that reaches `assertPostConditions()` (i.e. passed), `Understudy::verifyAll()` runs; an unmet `expect()` fails the test as an assertion failure.
+- A failing body keeps its own exception — verification never runs for it.
+- An `#[After]` hook resets the context unconditionally; doubles never leak between tests.
+- An `#[Before]` guard fails with a diagnostic when the previous context was not idle.
+- Override `understudyStrictStubs(): bool` in a base class to fail unused stubs project-wide. Default: false.
+- If the class overrides `assertPostConditions()`, compose explicitly with trait alias (`as understudyAssertPostConditions`) — silent shadowing disables verification.
+- Pest: import `expect as expectCall`, or use `Understudy::expect(...)`.
+
+## Typical test
+
+```php
+use function Rasuvaeff\Understudy\expect;
+use function Rasuvaeff\Understudy\when;
+use Rasuvaeff\Understudy\PhpUnit\UnderstudyPHPUnitIntegration;
+use Rasuvaeff\Understudy\Understudy;
+
+final class CheckoutTest extends TestCase
+{
+    use UnderstudyPHPUnitIntegration;
+
+    public function testChargesForTheCart(): void
+    {
+        $books = Understudy::for(BookRepositoryInterface::class);
+        when(fn () => $books->find(7))->returns(new Book(7));
+
+        (new Checkout($books))->charge([7]);
+
+        expect(fn () => $books->find(7));   // exactly once, verified by the trait
+    }
+}
+```
+
+## API
+
+| Member | Kind | Purpose |
+|---|---|---|
+| `Rasuvaeff\Understudy\PhpUnit\UnderstudyPHPUnitIntegration` | trait | verify-after-success, reset-in-`#[After]`, `#[Before]` guard, `understudyStrictStubs(): bool` |
+
+All doubling operations live in the core package `rasuvaeff/understudy`.
