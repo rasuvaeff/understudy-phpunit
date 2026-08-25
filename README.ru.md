@@ -170,6 +170,15 @@ it('reads the call back afterwards', function () {
 
 См. [`examples/`](examples/README.md).
 
+## Семейство understudy
+
+| Пакет | Что это |
+|---|---|
+| [rasuvaeff/understudy](https://github.com/rasuvaeff/understudy) | Движок: дубли, матчеры, ожидания, верификация. |
+| [rasuvaeff/understudy-testo](https://github.com/rasuvaeff/understudy-testo) | Testo-адаптер — верификация и сброс вокруг каждого теста. |
+| **rasuvaeff/understudy-phpunit** *(этот пакет)* | Адаптер для PHPUnit и Pest — то же самое, через трейт. |
+| [rasuvaeff/understudy-psalm](https://github.com/rasuvaeff/understudy-psalm) | Psalm-плагин — спецификации с матчерами и диагностики ошибок. |
+
 ## Разработка
 
 На хосте нет PHP/Composer — всё запускается через Docker:

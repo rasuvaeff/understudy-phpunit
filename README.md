@@ -171,6 +171,15 @@ documented there. This package adds no operations of its own.
 
 See [`examples/`](examples/README.md).
 
+## The understudy family
+
+| Package | What it is |
+|---|---|
+| [rasuvaeff/understudy](https://github.com/rasuvaeff/understudy) | The engine: doubles, matchers, expectations, verification. |
+| [rasuvaeff/understudy-testo](https://github.com/rasuvaeff/understudy-testo) | Testo adapter — verification and reset around every test. |
+| **rasuvaeff/understudy-phpunit** *(this package)* | PHPUnit and Pest adapter — the same, through a trait. |
+| [rasuvaeff/understudy-psalm](https://github.com/rasuvaeff/understudy-psalm) | Psalm plugin — matcher-aware specifications and misuse diagnostics. |
+
 ## Development
 
 No PHP/Composer on the host — everything runs through Docker:
