@@ -6,6 +6,7 @@ namespace Rasuvaeff\Understudy\PhpUnit\Tests;
 
 use PHPUnit\Framework\AssertionFailedError;
 use Rasuvaeff\Understudy\Exception\VerificationFailed;
+use Rasuvaeff\Understudy\PhpUnit\Tests\Fixture\AliasedSpy;
 use Rasuvaeff\Understudy\PhpUnit\Tests\Fixture\ChainedSpyBase;
 use Rasuvaeff\Understudy\PhpUnit\Tests\Fixture\ChainedSpyUsingTrait;
 use Rasuvaeff\Understudy\PhpUnit\Tests\Fixture\SpyContract;
@@ -134,6 +135,27 @@ final class UnderstudyPHPUnitIntegrationTest
         $test->runReset();
 
         Assert::true(Understudy::idle());
+    }
+
+    public function theAliasedCompositionFromTheReadmeVerifies(): void
+    {
+        // The recipe for a class that overrides post-conditions itself. Both
+        // halves have to happen: the user's own code, and the verification
+        // the alias keeps reachable.
+        $test = new AliasedSpy('probe');
+        $test->declareUnmetExpectation();
+
+        AliasedSpy::$ownRan = false;
+
+        try {
+            $test->runPostConditions();
+
+            Assert::fail('Expected an AssertionFailedError for the unmet expectation');
+        } catch (AssertionFailedError $error) {
+            Assert::instanceOf($error->getPrevious(), VerificationFailed::class);
+        }
+
+        Assert::true(AliasedSpy::$ownRan);
     }
 
     public function postConditionsReachTheParentChain(): void

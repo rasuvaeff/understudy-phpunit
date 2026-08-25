@@ -25,8 +25,8 @@ The trait ends every test with understudy's own bookkeeping done for you:
 - `phpunit/phpunit` (`^11.5 || ^12.0 || ^13.0`)
 - `rasuvaeff/understudy` (`^0.1`)
 
-Pest v2/v3 works too: it runs on PHPUnit, so the same trait applies through
-`uses()`.
+Pest works too — it runs on PHPUnit, so the same trait applies through
+`uses()`. Proven against Pest 4; see the Pest section below.
 
 ## Installation
 
@@ -94,8 +94,7 @@ error. Compose explicitly:
 
 ```php
 use Rasuvaeff\Understudy\PhpUnit\UnderstudyPHPUnitIntegration {
-    UnderstudyPHPUnitIntegration::assertPostConditions
-        as understudyAssertPostConditions;
+    UnderstudyPHPUnitIntegration::assertPostConditions as understudyAssertPostConditions;
 }
 
 protected function assertPostConditions(): void
@@ -117,21 +116,36 @@ setup verb under another name:
 
 ```php
 use function Rasuvaeff\Understudy\expect as expectCall;
+use function Rasuvaeff\Understudy\verify as verifyCall;
 
-uses(UnderstudyPHPUnitIntegration::class);
+uses(UnderstudyPHPUnitIntegration::class)->in(__DIR__);
 
 it('charges for the cart', function () {
+    $books = Understudy::for(BookRepositoryInterface::class);
+    when(fn () => $books->find(7))->returns(new Book(7));
+    expectCall(fn () => $books->find(7));      // declared before the action
+
+    (new Checkout($books))->charge([7]);
+});
+
+it('reads the call back afterwards', function () {
     $books = Understudy::for(BookRepositoryInterface::class);
     when(fn () => $books->find(7))->returns(new Book(7));
 
     (new Checkout($books))->charge([7]);
 
-    expectCall(fn () => $books->find(7));
+    verifyCall(fn () => $books->find(7));      // after the action
 });
 ```
 
-The collision-free static form `Understudy::when()/expect()/verify()` works
-everywhere as well.
+`expect()` is a claim made **before** the code under test runs — it counts the
+calls that arrive after it, not the ones that already happened. Reading a call
+back after the action is `verify()`. Pest's own `expect()` keeps working
+untouched, and the collision-free static form
+`Understudy::when()/expect()/verify()` works everywhere as well.
+
+Both spellings are executed by `tests/Integration/Fixtures/Pest`, a Pest
+project of its own; `make test-pest` installs and runs it.
 
 ## API
 

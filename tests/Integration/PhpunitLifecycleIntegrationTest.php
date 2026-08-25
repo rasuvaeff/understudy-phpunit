@@ -6,6 +6,7 @@ namespace Rasuvaeff\Understudy\PhpUnit\Tests\Integration;
 
 use Testo\Assert;
 use Testo\Codecov\CoversNothing;
+use Testo\Core\Exception\SkipTest;
 use Testo\Test;
 
 /**
@@ -78,6 +79,43 @@ final class PhpunitLifecycleIntegrationTest
         Assert::false(str_contains($output, 'ExpectationOnlyTest::testBodyAssertsNothingItself'));
         Assert::string($output)->contains('Tests: 2, Assertions: 1, Risky: 1');
         Assert::same($exit, 0);
+    }
+
+    /**
+     * The Pest recipe in the README, executed. Pest owns the global
+     * `expect()`, and the aliasing that gets around it is the whole recipe —
+     * a claim that was published untested, and wrong: it read a call back
+     * with `expect()` after the action, where understudy counts only the
+     * calls that arrive after the claim.
+     *
+     * Pest lives in a fixture project of its own: it pins `phpunit/phpunit`
+     * to one major, and this package supports three.
+     */
+    public function thePestRecipeRunsUnderPest(): void
+    {
+        $project = __DIR__ . '/Fixtures/Pest';
+
+        if (!is_file($project . '/vendor/bin/pest')) {
+            throw new SkipTest('Pest fixture is not installed — run `make test-pest`');
+        }
+
+        $command = sprintf(
+            'cd %s && %s %s --colors=never 2>&1',
+            escapeshellarg($project),
+            escapeshellarg(PHP_BINARY),
+            escapeshellarg($project . '/vendor/bin/pest'),
+        );
+
+        exec($command, $lines, $exit);
+        $output = implode("\n", $lines);
+
+        Assert::same($exit, 1);
+        // Three shapes pass: an expectation declared before the action, a
+        // `verify()` reading a call back afterwards, and Pest's own untouched
+        // `expect()`. The fourth is an unmet expectation, and must fail.
+        Assert::string($output)
+            ->contains('Tests:    1 failed, 3 passed')
+            ->contains('open(9)');
     }
 
     /**

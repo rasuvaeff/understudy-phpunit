@@ -11,7 +11,7 @@ DOCKER_HOST := docker run --rm --network host -v "$(ROOT)":/repo -w /repo/$(PKG)
 PCOV_BOOTSTRAP := apk add --no-cache $$PHPIZE_DEPS >/dev/null && pecl install pcov >/dev/null && docker-php-ext-enable pcov
 
 .PHONY: bench build cs cs-fix psalm test mutation rector rector-fix install normalize require-checker \
-       test-coverage test-coverage-ci update-deps release-check bc-check audit-package help
+       test-coverage test-coverage-ci test-pest update-deps release-check bc-check audit-package help
 
 install:
 	@# The path repository is set only for the duration of the install and then
@@ -38,6 +38,13 @@ psalm:
 
 test:
 	$(DOCKER) composer test
+
+# The Pest recipe from the README lives in a Composer project of its own:
+# Pest pins phpunit/phpunit to one major and this package supports three.
+# Installing it here keeps that constraint out of the package's own graph.
+test-pest:
+	$(DOCKER) sh -lc 'cd tests/Integration/Fixtures/Pest && composer install --no-interaction && ./vendor/bin/pest --colors=never || true'
+	$(DOCKER) composer test:integration
 
 test-coverage:
 	$(DOCKER) sh -lc '$(PCOV_BOOTSTRAP) && composer test:coverage'
@@ -90,6 +97,7 @@ help:
 	@echo "  cs-fix           fix code style"
 	@echo "  psalm            static analysis"
 	@echo "  test             run testo (Unit suite)"
+	@echo "  test-pest        install and run the Pest recipe fixture, then Integration"
 	@echo "  test-coverage    run testo with coverage"
 	@echo "  test-coverage-ci run testo coverage for CI artifacts"
 	@echo "  mutation         mutation testing"

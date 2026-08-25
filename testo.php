@@ -17,7 +17,13 @@ return new ApplicationConfig(
         ),
         new SuiteConfig(
             name: 'Integration',
-            location: ['tests/Integration'],
+            // The fixture projects are PHPUnit and Pest projects, not Testo
+            // ones, and the Pest one carries a vendor tree of its own: let
+            // the finder walk into it and it redeclares half of PHPUnit.
+            location: new FinderConfig(
+                include: ['tests/Integration'],
+                exclude: ['tests/Integration/Fixtures'],
+            ),
         ),
         new SuiteConfig(
             name: 'Benchmarks',

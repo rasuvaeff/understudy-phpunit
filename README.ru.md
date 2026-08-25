@@ -25,8 +25,8 @@ PHPUnit-адаптер для [rasuvaeff/understudy](https://github.com/rasuvaef
 - `phpunit/phpunit` (`^11.5 || ^12.0 || ^13.0`)
 - `rasuvaeff/understudy` (`^0.1`)
 
-Pest v2/v3 тоже работает: он стоит на PHPUnit, поэтому тот же трейт
-подключается через `uses()`.
+Pest тоже работает: он стоит на PHPUnit, поэтому тот же трейт подключается
+через `uses()`. Проверено на Pest 4 — см. секцию Pest ниже.
 
 ## Установка
 
@@ -94,8 +94,7 @@ PHP разрешает конфликт имени метода между кл�
 
 ```php
 use Rasuvaeff\Understudy\PhpUnit\UnderstudyPHPUnitIntegration {
-    UnderstudyPHPUnitIntegration::assertPostConditions
-        as understudyAssertPostConditions;
+    UnderstudyPHPUnitIntegration::assertPostConditions as understudyAssertPostConditions;
 }
 
 protected function assertPostConditions(): void
@@ -117,21 +116,36 @@ understudy импортируется под другим именем:
 
 ```php
 use function Rasuvaeff\Understudy\expect as expectCall;
+use function Rasuvaeff\Understudy\verify as verifyCall;
 
-uses(UnderstudyPHPUnitIntegration::class);
+uses(UnderstudyPHPUnitIntegration::class)->in(__DIR__);
 
 it('charges for the cart', function () {
+    $books = Understudy::for(BookRepositoryInterface::class);
+    when(fn () => $books->find(7))->returns(new Book(7));
+    expectCall(fn () => $books->find(7));      // объявлено до действия
+
+    (new Checkout($books))->charge([7]);
+});
+
+it('reads the call back afterwards', function () {
     $books = Understudy::for(BookRepositoryInterface::class);
     when(fn () => $books->find(7))->returns(new Book(7));
 
     (new Checkout($books))->charge([7]);
 
-    expectCall(fn () => $books->find(7));
+    verifyCall(fn () => $books->find(7));      // после действия
 });
 ```
 
-Бесколлизионная статическая форма `Understudy::when()/expect()/verify()`
-работает везде.
+`expect()` — заявление, сделанное **до** запуска кода под тестом: оно считает
+вызовы, пришедшие после него, а не те, что уже случились. Прочитать вызов
+задним числом — это `verify()`. Собственный `expect()` Pest продолжает
+работать, а бесколлизионная статическая форма
+`Understudy::when()/expect()/verify()` работает везде.
+
+Обе формы исполняются проектом `tests/Integration/Fixtures/Pest`;
+`make test-pest` ставит его зависимости и запускает.
 
 ## API
 
