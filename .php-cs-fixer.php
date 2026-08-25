@@ -10,7 +10,9 @@ $finder = (new Finder())
         __DIR__ . '/src',
         __DIR__ . '/tests',
         __DIR__ . '/examples',
-    ]);
+    ])
+    // A Composer project of its own, vendor tree included.
+    ->exclude('Integration/Fixtures/Pest');
 
 return (new Config())
     ->setUsingCache(false)
