@@ -178,6 +178,7 @@ it('reads the call back afterwards', function () {
 | [rasuvaeff/understudy-testo](https://github.com/rasuvaeff/understudy-testo) | Testo-адаптер — верификация и сброс вокруг каждого теста. |
 | **rasuvaeff/understudy-phpunit** *(этот пакет)* | Адаптер для PHPUnit и Pest — то же самое, через трейт. |
 | [rasuvaeff/understudy-psalm](https://github.com/rasuvaeff/understudy-psalm) | Psalm-плагин — спецификации с матчерами и диагностики ошибок. |
+| [rasuvaeff/understudy-phpstan](https://github.com/rasuvaeff/understudy-phpstan) | PHPStan-расширение — то же самое для PHPStan, плюс свои правила. |
 
 ## Разработка
 
