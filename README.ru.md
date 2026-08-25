@@ -1,5 +1,14 @@
 # rasuvaeff/understudy-phpunit
 
+[![Latest Stable Version](https://poser.pugx.org/rasuvaeff/understudy-phpunit/v)](https://packagist.org/packages/rasuvaeff/understudy-phpunit)
+[![Total Downloads](https://poser.pugx.org/rasuvaeff/understudy-phpunit/downloads)](https://packagist.org/packages/rasuvaeff/understudy-phpunit)
+[![Build](https://github.com/rasuvaeff/understudy-phpunit/actions/workflows/build.yml/badge.svg)](https://github.com/rasuvaeff/understudy-phpunit/actions/workflows/build.yml)
+[![Static analysis](https://github.com/rasuvaeff/understudy-phpunit/actions/workflows/static-analysis.yml/badge.svg)](https://github.com/rasuvaeff/understudy-phpunit/actions/workflows/static-analysis.yml)
+[![Psalm level](https://img.shields.io/badge/psalm-level_1-blue.svg)](https://github.com/rasuvaeff/understudy-phpunit/actions/workflows/static-analysis.yml)
+[![PHP](https://img.shields.io/packagist/dependency-v/rasuvaeff/understudy-phpunit/php)](https://packagist.org/packages/rasuvaeff/understudy-phpunit)
+[![License](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg)](LICENSE.md)
+[English version](README.md)
+
 PHPUnit-адаптер для [rasuvaeff/understudy](https://github.com/rasuvaeff/understudy) —
 библиотеки test double, где настроенный вызов — это настоящий вызов:
 `when(fn () => $repo->find(123))->returns($book)`.
