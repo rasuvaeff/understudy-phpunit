@@ -32,7 +32,7 @@ The trait ends every test with understudy's own bookkeeping done for you:
 
 - PHP 8.3 – 8.5
 - `phpunit/phpunit` (`^11.5 || ^12.0 || ^13.0`)
-- `rasuvaeff/understudy` (`^0.1`)
+- `rasuvaeff/understudy` (`^0.1 || ^0.2 || ^0.3`)
 
 Pest works too — it runs on PHPUnit, so the same trait applies through
 `uses()`. Proven against Pest 4; see the Pest section below.
