@@ -32,7 +32,7 @@ PHPUnit-адаптер для [rasuvaeff/understudy](https://github.com/rasuvaef
 
 - PHP 8.3 – 8.5
 - `phpunit/phpunit` (`^11.5 || ^12.0 || ^13.0`)
-- `rasuvaeff/understudy` (`^0.1`)
+- `rasuvaeff/understudy` (`^0.1 || ^0.2 || ^0.3`)
 
 Pest тоже работает: он стоит на PHPUnit, поэтому тот же трейт подключается
 через `uses()`. Проверено на Pest 4 — см. секцию Pest ниже.
