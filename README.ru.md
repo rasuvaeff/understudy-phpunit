@@ -73,18 +73,29 @@ final class CheckoutTest extends TestCase
     public function testChargesForTheCart(): void
     {
         $books = Understudy::for(BookRepositoryInterface::class);
-        when(fn () => $books->find(7))->returns($expected = new Book(7));
+        expect(fn () => $books->find(7))->returns($expected = new Book(7));
 
         $receipt = (new Checkout($books))->charge([7]);
 
         self::assertSame($expected->price, $receipt->total);
-        expect(fn () => $books->find(7));   // ровно один раз — проверено за вас
     }
 }
 ```
 
-Если сервис так и не вызвал `find(7)`, тест падает после тела — с отчётом о
-невыполненном ожидании, а не с молчаливым «зелёным».
+Одна регистрация говорит обе вещи сразу: `find(7)` обязан быть вызван ровно
+один раз и отвечает `$expected`. Если сервис так и не вызвал его, тест падает
+после тела — с отчётом о невыполненном ожидании, а не с молчаливым «зелёным».
+
+Форму задают два правила движка, и оба легко упустить, придя из другой
+библиотеки:
+
+- **Взводить до прогона.** `expect()` считает только вызовы, пришедшие после
+  объявления. Написанное под действием, оно насчитает ноль и упадёт с «ни разу»
+  про вызов, который был. Чтобы заявить уже случившийся вызов, есть `verify()`.
+- **Одна регистрация на вызов.** Стаб `when()` и `expect()` на тот же самый
+  вызов отвергаются с `ConflictingExpectation`: объявленное позже забрало бы
+  диспетч и молча обесценило другое. Говорите обе вещи одной регистрацией —
+  `expect(...)->returns(...)` или `when(...)->times(...)`.
 
 ### Strict stubs
 
@@ -142,8 +153,7 @@ uses(UnderstudyPHPUnitIntegration::class)->in(__DIR__);
 
 it('charges for the cart', function () {
     $books = Understudy::for(BookRepositoryInterface::class);
-    when(fn () => $books->find(7))->returns(new Book(7));
-    expectCall(fn () => $books->find(7));      // объявлено до действия
+    expectCall(fn () => $books->find(7))->returns(new Book(7));   // одна регистрация
 
     (new Checkout($books))->charge([7]);
 });
