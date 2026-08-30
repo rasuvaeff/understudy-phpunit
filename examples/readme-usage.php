@@ -103,17 +103,26 @@ try {
 check($failed, 'an unmet expectation fails the test rather than passing green');
 $test->runReset();
 
-// 3. The pair the README used to show is refused at registration.
-$books = Understudy::for(BookRepositoryInterface::class);
-\Rasuvaeff\Understudy\when(fn() => $books->find(7))->returns(new Book(7));
+// 3. The pair the README used to show is refused at registration — from engine
+//    0.3.0 on. This package allows ^0.1 || ^0.2 || ^0.3 || ^0.4, and on the
+//    older two the pair degraded silently instead, so the claim is made only
+//    where the engine can hold it. Without this guard the `prefer-lowest` CI
+//    job fails on a version difference rather than on a defect.
+if (class_exists(\Rasuvaeff\Understudy\Exception\ConflictingExpectation::class)) {
+    $books = Understudy::for(BookRepositoryInterface::class);
+    \Rasuvaeff\Understudy\when(fn() => $books->find(7))->returns(new Book(7));
 
-$refused = false;
+    $refused = false;
 
-try {
-    expect(fn() => $books->find(7));
-} catch (\Rasuvaeff\Understudy\Exception\ConflictingExpectation) {
-    $refused = true;
+    try {
+        expect(fn() => $books->find(7));
+    } catch (\Rasuvaeff\Understudy\Exception\ConflictingExpectation) {
+        $refused = true;
+    }
+
+    check($refused, 'when() plus expect() for the same call is refused, not silently merged');
+} else {
+    printf("  --  refusal claim skipped: this engine predates ConflictingExpectation (0.3.0)\n");
 }
-check($refused, 'when() plus expect() for the same call is refused, not silently merged');
 
 Understudy::reset();
