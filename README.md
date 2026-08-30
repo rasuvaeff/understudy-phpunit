@@ -73,18 +73,31 @@ final class CheckoutTest extends TestCase
     public function testChargesForTheCart(): void
     {
         $books = Understudy::for(BookRepositoryInterface::class);
-        when(fn () => $books->find(7))->returns($expected = new Book(7));
+        expect(fn () => $books->find(7))->returns($expected = new Book(7));
 
         $receipt = (new Checkout($books))->charge([7]);
 
         self::assertSame($expected->price, $receipt->total);
-        expect(fn () => $books->find(7));   // exactly once — verified for you
     }
 }
 ```
 
-If the service never calls `find(7)`, the test fails after its body — with an
-unmet-expectation report naming the call, not with a silent green.
+One registration says both things: `find(7)` must be called exactly once, and
+it answers `$expected`. If the service never calls it, the test fails after its
+body — with an unmet-expectation report naming the call, not with a silent
+green.
+
+Two rules of the engine decide that shape, and both are easy to miss coming
+from another library:
+
+- **Arm before the run.** An `expect()` counts only the calls that arrive after
+  it is declared. Written below the action it counts zero and fails as "called
+  never" about a call that did happen. To claim a call that already happened,
+  use `verify()`.
+- **One registration per call.** A `when()` stub and an `expect()` naming the
+  exact same call are refused with `ConflictingExpectation` — whichever came
+  later would take the dispatch and silently void the other. Say both things
+  once: `expect(...)->returns(...)`, or `when(...)->times(...)`.
 
 ### Strict stubs
 
@@ -142,8 +155,7 @@ uses(UnderstudyPHPUnitIntegration::class)->in(__DIR__);
 
 it('charges for the cart', function () {
     $books = Understudy::for(BookRepositoryInterface::class);
-    when(fn () => $books->find(7))->returns(new Book(7));
-    expectCall(fn () => $books->find(7));      // declared before the action
+    expectCall(fn () => $books->find(7))->returns(new Book(7));   // one registration
 
     (new Checkout($books))->charge([7]);
 });
