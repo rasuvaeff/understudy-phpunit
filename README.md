@@ -43,7 +43,7 @@ context before teardown.
 
 - PHP 8.3 – 8.5
 - `phpunit/phpunit` (`^11.5 || ^12.0 || ^13.0`)
-- `rasuvaeff/understudy` (`^0.1 || ^0.2 || ^0.3 || ^0.4`)
+- `rasuvaeff/understudy` (`^0.1 || ^0.2 || ^0.3 || ^0.4 || ^0.5`)
 
 Pest works too — it runs on PHPUnit, so the same trait applies through
 `uses()`. Proven against Pest 4; see the Pest section below.
