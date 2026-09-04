@@ -20,12 +20,13 @@ composer require --dev rasuvaeff/understudy-phpunit
 - The trait calls `parent::assertPostConditions()` BEFORE verifying: your own post-conditions always run, and their failure is reported first.
 - Verification adds exactly 1 to the PHPUnit assertion count.
 - Pest: import `expect as expectCall`, or use `Understudy::expect(...)`.
+- Arm before the run. An `expect()` counts only calls arriving after it is declared; below the action it counts zero and fails as "called never". To claim a call that already happened, use `verify()`.
+- One registration per call. A `when()` stub and an `expect()` naming the same call are two registrations of one call — `ConflictingExpectation`. `expect(...)->returns(...)` says both things at once.
 
 ## Typical test
 
 ```php
 use function Rasuvaeff\Understudy\expect;
-use function Rasuvaeff\Understudy\when;
 use Rasuvaeff\Understudy\PhpUnit\UnderstudyPHPUnitIntegration;
 use Rasuvaeff\Understudy\Understudy;
 
@@ -36,11 +37,11 @@ final class CheckoutTest extends TestCase
     public function testChargesForTheCart(): void
     {
         $books = Understudy::for(BookRepositoryInterface::class);
-        when(fn () => $books->find(7))->returns(new Book(7));
+        expect(fn () => $books->find(7))->returns($expected = new Book(7));
 
-        (new Checkout($books))->charge([7]);
+        $receipt = (new Checkout($books))->charge([7]);
 
-        expect(fn () => $books->find(7));   // exactly once, verified by the trait
+        self::assertSame($expected->price, $receipt->total);
     }
 }
 ```
