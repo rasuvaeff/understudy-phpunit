@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+- The `#[Before]` guard is checked through real PHPUnit. It was covered only
+  by a unit test calling `runGuard()` directly, which proves the condition and
+  nothing about what a user sees — the guard fires from `#[Before]`, so the
+  failure lands on the BLAMELESS class, the one that ran after the leak, and
+  that attribution is the whole diagnostic. A fixture now leaks a context from
+  a class without the trait and pins the report, the attribution and the exit
+  code.
+- The Pest recipe runs in CI. The test that executes it skips itself unless
+  the fixture project is installed, which was every run of every job, so the
+  README's Pest recipe had never actually been checked. It has a job of its
+  own because Pest pins one PHPUnit major and this package supports three.
+- `infection/infection` moves to `^0.35`, matching the monorepo templates.
+  Re-measured: 12 of 12 mutants killed, unchanged.
+- `AGENTS.md` said the unit tests avoid PHPUnit's assertion counter; they use
+  it, by its new name. What actually guards the rename is the `PHPUnit ^11.5`
+  matrix job, and the note says so now.
+
 ## 0.1.5 — 2026-09-04
 
 - Allow `rasuvaeff/understudy` `^0.6`. Widened rather than raised: the adapter

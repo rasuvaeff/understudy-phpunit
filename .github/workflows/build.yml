@@ -191,6 +191,53 @@ jobs:
       - name: Integration tests
         run: composer test:integration
 
+  pest:
+    # The Pest recipe is in the README, and the test that runs it skips itself
+    # when the fixture project is not installed — which is every run of every
+    # other job. Without this one it has never actually run in CI.
+    #
+    # Its own job rather than a step on the matrix: Pest pins `phpunit/phpunit`
+    # to one major and this package supports three, so it lives in a fixture
+    # project with a lock file of its own.
+    name: Pest recipe
+    needs: changes
+    if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.run == 'true') }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          extensions: json
+          tools: composer:v2
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.composer/cache
+          key: composer-${{ runner.os }}-${{ hashFiles('**/composer.json') }}
+          restore-keys: composer-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Install the Pest fixture project
+        working-directory: tests/Integration/Fixtures/Pest
+        run: composer install --no-interaction --no-progress
+
+      # The whole suite, not just the Pest test: the fixture being installed
+      # is the only difference from every other job, and a test that skips
+      # everywhere is a test nobody notices breaking.
+      - name: Integration tests
+        run: composer test:integration
+
   prefer-lowest:
     name: Prefer lowest
     needs: changes

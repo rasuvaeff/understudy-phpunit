@@ -98,10 +98,12 @@ make release-check
   and interfaces only. Fixture subclasses override `understudyStrictStubs()`
   without the attribute, on purpose.
 - **PHPUnit renamed its assertion counter** (`getNumAssertions()` →
-  `numberOfAssertionsPerformed()`) between supported major versions. Unit
-  tests therefore assert observable state instead of the counter; the "+1
-  assertion" contract is pinned by the integration fixtures, where real
-  PHPUnit prints the counts.
+  `numberOfAssertionsPerformed()`) between supported major versions. The unit
+  tests use the NEW name, which is why the `PHPUnit ^11.5` matrix job exists:
+  it is the one that would go red if the old name came back. The "+1
+  assertion" contract is pinned twice over — there and in the integration
+  fixtures, where real PHPUnit prints the counts and the summary line is
+  asserted whole.
 - **Integration fixtures are real Composer-independent projects**: each has
   its own `phpunit.xml` pointing at this package's `vendor/autoload.php`, and
   fixture classes autoload PSR-4 through the dev mappings of THIS package.

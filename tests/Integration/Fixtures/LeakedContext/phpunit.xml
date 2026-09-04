@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         bootstrap="../../../../vendor/autoload.php"
+         colors="false" cacheResult="false">
+    <testsuites>
+        <!-- Files, in order: the guard is about what the PREVIOUS class left
+             behind, so which class runs first is the whole scenario. -->
+        <testsuite name="fixture">
+            <file>LeakingTest.php</file>
+            <file>GuardedTest.php</file>
+        </testsuite>
+    </testsuites>
+</phpunit>
