@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+- **Documentation review fixes.** Both READMEs gained the missing Security
+  section; the API table no longer says «reset-in-`finally`» (the reset has
+  always lived in `#[After]`). The trait's docblock now shows the explicit
+  composition in the order the README mandates — the user's post-conditions
+  first, verification second. The stale engine-constraint comment in
+  `examples/readme-usage.php` caught up with `^0.7`. AGENTS.md no longer links
+  to the retired `_plans/UNDERSTUDY-PLAN.md`.
+
 ## 0.1.6 — 2026-09-04
 
 - Allow `rasuvaeff/understudy` `^0.7`. Widened rather than raised.

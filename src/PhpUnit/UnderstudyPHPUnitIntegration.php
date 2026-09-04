@@ -68,10 +68,13 @@ use Rasuvaeff\Understudy\Understudy;
  *
  * protected function assertPostConditions(): void
  * {
- *     $this->understudyAssertPostConditions();
  *     // your post-conditions ...
+ *     $this->understudyAssertPostConditions();
  * }
  * ```
+ *
+ * The user's post-conditions run first — the check closer to the test body
+ * wins, same as the README says.
  *
  * @api
  *
