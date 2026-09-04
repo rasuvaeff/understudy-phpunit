@@ -183,12 +183,18 @@ project of its own; `make test-pest` installs and runs it.
 
 | Member | Purpose |
 |---|---|
-| `UnderstudyPHPUnitIntegration` | The trait: verify-after-success, reset-in-`finally` semantics via `#[After]`, `#[Before]` guard, optional project-wide strict stubs |
+| `UnderstudyPHPUnitIntegration` | The trait: verify-after-success, reset via `#[After]`, `#[Before]` guard, optional project-wide strict stubs |
 
 Everything else — `for()`, `when()`, `expect()`, `verify()`, matchers,
 forwarding, `wire()` — belongs to
 [rasuvaeff/understudy](https://github.com/rasuvaeff/understudy) and is
 documented there. This package adds no operations of its own.
+
+## Security
+
+The trait hooks `#[Before]`/`#[After]` around each test and, on a passing
+body, calls the engine's `verifyAll()`. It executes no code beyond what the
+test itself runs and writes nothing.
 
 ## Examples
 

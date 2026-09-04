@@ -187,6 +187,12 @@ it('reads the call back afterwards', function () {
 `wire()` — относится к [rasuvaeff/understudy](https://github.com/rasuvaeff/understudy)
 и документировано там. Этот пакет не добавляет собственных операций.
 
+## Безопасность
+
+Трейт вешает хуки `#[Before]`/`#[After]` вокруг каждого теста и при пройденном
+теле вызывает `verifyAll()` движка. Он не исполняет код сверх того, что сам
+тест запускает, и ничего не пишет.
+
 ## Примеры
 
 См. [`examples/`](examples/README.md).
