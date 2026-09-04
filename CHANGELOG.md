@@ -14,10 +14,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   that attribution is the whole diagnostic. A fixture now leaks a context from
   a class without the trait and pins the report, the attribution and the exit
   code.
-- The Pest recipe runs in CI. The test that executes it skips itself unless
-  the fixture project is installed, which was every run of every job, so the
-  README's Pest recipe had never actually been checked. It has a job of its
-  own because Pest pins one PHPUnit major and this package supports three.
+- The Pest recipe runs in CI, and it was broken. The test that executes it
+  skips itself unless the fixture project is installed, which was every run of
+  every job — so the recipe had never actually been checked, and the fixture
+  still stubbed `find(7)` with `when()` and claimed the same call with
+  `expect()`: two registrations of one call, which the engine has refused with
+  `ConflictingExpectation` since 0.3. The README's Pest section has been right
+  all along; the fixture that was supposed to prove it had drifted, in the
+  third place this same mistake has now been found. The job has a checkout of
+  its own because the fixture's path repositories are written for the monorepo
+  layout — this package and the engine side by side — which is deliberate:
+  the recipe runs against the working tree of both.
 - `infection/infection` moves to `^0.35`, matching the monorepo templates.
   Re-measured: 12 of 12 mutants killed, unchanged.
 - `AGENTS.md` said the unit tests avoid PHPUnit's assertion counter; they use
