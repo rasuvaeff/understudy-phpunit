@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+- **The shipped trait's docblock taught the usage this package documents as
+  wrong.** It stubbed `find(7)` with `when()` and claimed the same call with
+  `expect()` — two registrations of one call, which the engine refuses — and
+  it armed the expectation below the action, where it counts zero. `llms.txt`
+  carried the same snippet. Both now show the corrected form the README and
+  `examples/readme-usage.php` have used since 0.1.0, and both name the two
+  engine rules that decide it. Fixes #13.
+- `DocumentedUsageTest` pins the three copies of the Usage snippet to each
+  other. The original mistake survived two releases because nothing ran the
+  snippet; the fix reached the README and the runnable example and stopped
+  there, at the two copies nothing executes — which a consumer reads in their
+  IDE and an assistant reads as `llms.txt`.
+
 ## 0.1.4 — 2026-09-03
 
 - The Requirements section of both READMEs said `rasuvaeff/understudy`
