@@ -13,8 +13,11 @@ require_once __DIR__ . '/../Gate.php';
 
 it('verifies an expectation declared before the action', function (): void {
     $gate = Understudy::for(Gate::class);
-    when(static fn(): bool => $gate->open(7))->returns(true);
-    expectCall(static fn(): bool => $gate->open(7));
+    // One registration says both things. A `when()` stub beside an
+    // `expect()` for the same call is two registrations of one call, and the
+    // engine refuses it with `ConflictingExpectation` — which is what this
+    // very file said until the job that runs it existed.
+    expectCall(static fn(): bool => $gate->open(7))->returns(true);
 
     $gate->open(7);
 });

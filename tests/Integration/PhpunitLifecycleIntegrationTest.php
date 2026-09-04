@@ -121,6 +121,31 @@ final class PhpunitLifecycleIntegrationTest
     /**
      * @return array{int, string}
      */
+    /**
+     * The guard, as real PHPUnit reports it.
+     *
+     * It was checked only by a unit test calling `runGuard()` directly, which
+     * proves the condition and nothing about what a user sees: the guard runs
+     * from `#[Before]`, so what it costs is a failure attributed to the
+     * BLAMELESS class — the one that came after the leak — and that
+     * attribution is the whole diagnostic.
+     */
+    public function theGuardRefusesToStartOverALeakedContext(): void
+    {
+        [$exit, $output] = $this->runPhpunit('LeakedContext');
+
+        Assert::same($exit, 1);
+        Assert::string($output)
+            ->contains('still holds understudies before this test started')
+            ->contains('is the integration trait used by every class that creates doubles')
+            // Named on the class that did not leak, which is the point: the
+            // one that did has no trait and so nothing to report from.
+            ->contains('GuardedTest::testStartsOverSomebodyElsesLeftovers');
+
+        Assert::same($this->summaryCount($output, 'Failures'), 1);
+        Assert::string($output)->contains('Tests: 2, Assertions: 1, Failures: 1');
+    }
+
     private function runPhpunit(string $fixture): array
     {
         $root = dirname(__DIR__, 2);
