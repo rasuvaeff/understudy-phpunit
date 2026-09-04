@@ -5,8 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## 0.1.5 — 2026-09-04
 
+- Allow `rasuvaeff/understudy` `^0.6`. Widened rather than raised: the adapter
+  works against every 0.x line it has ever supported, and consumers on the
+  older ones should not be cut off from it.
 - **The shipped trait's docblock taught the usage this package documents as
   wrong.** It stubbed `find(7)` with `when()` and claimed the same call with
   `expect()` — two registrations of one call, which the engine refuses — and
