@@ -198,17 +198,35 @@ jobs:
     #
     # Its own job rather than a step on the matrix: Pest pins `phpunit/phpunit`
     # to one major and this package supports three, so it lives in a fixture
-    # project with a lock file of its own.
+    # project with a resolution of its own.
     name: Pest recipe
     needs: changes
     if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.run == 'true') }}
     runs-on: ubuntu-latest
+
+    # The fixture's path repositories are written for the monorepo layout —
+    # this package, and the engine as its sibling — so the checkout reproduces
+    # that layout rather than the fixture being taught about CI. The engine is
+    # a path repository there ON PURPOSE: the recipe has to run against the
+    # working tree of both packages, which is what `Consumer smoke` (engine
+    # from Packagist) deliberately does not do.
+    defaults:
+      run:
+        working-directory: understudy-phpunit
 
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           persist-credentials: false
+          path: understudy-phpunit
+
+      - name: Checkout the engine as a sibling
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          repository: rasuvaeff/understudy
+          persist-credentials: false
+          path: understudy
 
       - name: Setup PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
@@ -222,14 +240,14 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.composer/cache
-          key: composer-${{ runner.os }}-${{ hashFiles('**/composer.json') }}
+          key: composer-${{ runner.os }}-${{ hashFiles('understudy-phpunit/composer.json') }}
           restore-keys: composer-${{ runner.os }}-
 
       - name: Install dependencies
         run: composer install --no-interaction --no-progress --prefer-dist
 
       - name: Install the Pest fixture project
-        working-directory: tests/Integration/Fixtures/Pest
+        working-directory: understudy-phpunit/tests/Integration/Fixtures/Pest
         run: composer install --no-interaction --no-progress
 
       # The whole suite, not just the Pest test: the fixture being installed
