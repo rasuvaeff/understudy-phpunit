@@ -5,8 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## 0.1.6 — 2026-09-04
 
+- Allow `rasuvaeff/understudy` `^0.7`. Widened rather than raised.
 - The `#[Before]` guard is checked through real PHPUnit. It was covered only
   by a unit test calling `runGuard()` directly, which proves the condition and
   nothing about what a user sees — the guard fires from `#[Before]`, so the
