@@ -60,6 +60,15 @@ make release-check
 
 ## Invariants & gotchas
 
+- **The Pest fixture's path-repository pins move with every release.**
+  `tests/Integration/Fixtures/Pest/composer.json` advertises this package and
+  the engine at literal versions, because a path repository has none of its
+  own, and it requires this package by a caret range. When either package's
+  version or the engine constraint moves, those three numbers move with it —
+  a path repository is canonical, so a stale pin does not fall back to
+  Packagist, it makes the whole fixture unresolvable. Only the `Pest recipe`
+  job installs it, so nothing else in CI notices.
+
 - **The lifecycle table is the contract.** Passed body (i.e.
   `assertPostConditions()` reached) → verify; anything else → pass through
   untouched; always reset. The reset lives in `#[After]`, not in post-
