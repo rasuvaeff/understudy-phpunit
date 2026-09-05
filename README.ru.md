@@ -33,7 +33,7 @@ PHPUnit-адаптер для [rasuvaeff/understudy](https://github.com/rasuvaef
 настоящие файловые стримы, ронял удаление каталога в teardown с «Directory not
 empty» — только на Windows, потому что POSIX удаляет открытые файлы. Такой
 дубль стройте lean (`Understudy::lean($double)` хранит вызовы, но не
-возвращённые значения; understudy 0.4+) либо стройте и используйте внутри
+возвращённые значения) либо стройте и используйте внутри
 `Understudy::scope()`, который сбрасывает контекст до teardown.
 
 > Используете AI-ассистента? [llms.txt](llms.txt) — компактный API-справочник,
@@ -43,7 +43,7 @@ empty» — только на Windows, потому что POSIX удаляет 
 
 - PHP 8.3 – 8.5
 - `phpunit/phpunit` (`^11.5 || ^12.0 || ^13.0`)
-- `rasuvaeff/understudy` (`^0.8`)
+- `rasuvaeff/understudy` (`^0.8 || ^0.9`)
 
 Pest тоже работает: он стоит на PHPUnit, поэтому тот же трейт подключается
 через `uses()`. Проверено на Pest 4 — см. секцию Pest ниже.

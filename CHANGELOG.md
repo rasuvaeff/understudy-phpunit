@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.3.0 — 2026-09-05
+
+A minor rather than a patch: two methods of the trait become `@internal`, and
+`roave/backward-compatibility-check` reads that as the contract narrowing it is
+— which Composer's caret already treats as breaking on 0.x.
+
+- Allows `rasuvaeff/understudy` `^0.8 || ^0.9`. A bridge, not a widening for
+  its own sake: the engine's 0.9 is the 1.0 candidate — every contract decision
+  of the 1.0 review lands there, and 1.0 follows once it has been driven by real
+  packages — and a project taking it must be able to keep this adapter without a
+  window in which `composer require` silently installs the 0.8 engine beside
+  it. The `^0.8` term is dropped in the release that follows the engine's.
+- The two hook methods of the trait, `understudyPrepareContext()` and
+  `understudyResetContext()`, are `@internal`. They are `protected` because
+  PHPUnit discovers hooks by attribute and a trait cannot hide them from the
+  class using it, not as override points: a subclass that overrode one would
+  silently lose the guard or the reset. `understudyStrictStubs()` stays the
+  one documented override, and `assertPostConditions()` stays public API
+  because the README's explicit-composition recipe calls it through an alias.
+- Both READMEs stop dating `lean()` to «understudy 0.4+»: with a floor of
+  `^0.8` every engine this adapter installs beside has it. `llms.txt` carries
+  the family's `# rasuvaeff/…` heading.
+
 ## 0.2.0 — 2026-09-05
 
 - Requires `rasuvaeff/understudy` `^0.8`, and requires it as a single term. The
