@@ -56,6 +56,23 @@ final class PhpunitLifecycleIntegrationTest
         Assert::string($output)->contains('Tests: 2');
     }
 
+    /**
+     * `#[DoesNotPerformAssertions]` is written on tests of the form "this
+     * should simply not throw", and such a class inherits the trait from a
+     * project-wide base class along with everything else. Counting an
+     * assertion unconditionally made PHPUnit report "performed 1 assertion"
+     * and turn the test risky — for a reason that was the adapter's, not the
+     * test's.
+     */
+    public function aTestThatCreatesNoDoubleKeepsItsAssertionCount(): void
+    {
+        [$exit, $output] = $this->runPhpunit('NoDoubles');
+
+        Assert::same($exit, 0);
+        Assert::same($this->summaryCount($output, 'Risky'), 0);
+        Assert::string($output)->contains('OK (1 test, 0 assertions)');
+    }
+
     public function bypassFinalsSurvivesProcessIsolation(): void
     {
         [$exit, $output] = $this->runPhpunit('ProcessIsolation');

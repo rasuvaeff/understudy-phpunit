@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+- **`#[DoesNotPerformAssertions]` works again.** The trait counted an assertion
+  unconditionally, so a test marked with that attribute reported "performed 1
+  assertion" and went risky — on exactly the tests the attribute is written for
+  ("this should simply not throw"), in a class that inherits the trait from a
+  project-wide base class along with everything else. A test that created no
+  double is now left alone entirely.
+- **The context guard no longer blames a test that never ran.** A double
+  created in `setUpBeforeClass()` fills the context before `#[Before]`, and the
+  message sent the reader looking for an earlier test that skipped cleanup, an
+  unused trait and a swallowed `assertPostConditions()` — none of which was the
+  case. It now names `setUpBeforeClass()` first.
+- **The Pest example runs.** The second snippet of that section called `when()`
+  without importing it — `Call to undefined function when()` — in a section
+  whose whole subject is which functions to import under which names. Both
+  READMEs are fixed; the package's own Pest fixture had it right all along.
+- Both READMEs and `llms.txt` stop pointing at `Understudy::strict($double)` as
+  the per-double form of strict stubs. It is strict *dispatch* — "fail on any
+  call no expectation matched" — and says nothing about a stub that was
+  configured and never called; the per-double equivalent is
+  `when(…)->times(n)`.
+- Both READMEs and `llms.txt` say that verification runs **before** your
+  teardown here and **after** it under `understudy-testo`, so a test whose
+  expectation is fulfilled by teardown itself fails in one runner and passes in
+  the other.
+
 ## 0.1.7 — 2026-09-04
 
 - **Documentation review fixes.** Both READMEs gained the missing Security

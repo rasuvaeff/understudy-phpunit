@@ -68,6 +68,21 @@ final class UnderstudyPHPUnitIntegrationTest
         Understudy::reset();
     }
 
+    /**
+     * A test that created no double asked understudy nothing, so there is no
+     * assertion attempt here to count. Counting one anyway made
+     * `#[DoesNotPerformAssertions]` report "performed 1 assertion" and turn
+     * the test risky, for a reason that was the adapter's and not the test's.
+     */
+    public function postConditionsCountNothingWithoutADouble(): void
+    {
+        $test = new SpyUsingTrait('probe');
+
+        $test->runPostConditions();
+
+        Assert::same($test->numberOfAssertionsPerformed(), 0);
+    }
+
     public function strictStubsDefaultToleratesAnUnusedStub(): void
     {
         $test = new SpyUsingTrait('probe');
@@ -111,10 +126,19 @@ final class UnderstudyPHPUnitIntegrationTest
         } catch (AssertionFailedError $failure) {
             // The full diagnostic survives only when every message operand
             // concatenates in order.
-            Assert::string($failure->getMessage())
-                ->contains('still holds understudies')
-                ->contains('is the integration trait used by every class that creates doubles')
-                ->contains('swallow assertPostConditions()?');
+            // Asserted whole: it is the only thing the reader gets, and every
+            // half of a concatenation in one is a mutant a `contains()` cannot
+            // see. The first branch names the cause the old message did not —
+            // `#[Before]` runs after `setUpBeforeClass()`, so a double created
+            // there was blamed on an earlier test that never ran.
+            Assert::same(
+                $failure->getMessage(),
+                'The current execution context still holds understudies before this test started. '
+                . 'A double created in setUpBeforeClass() lands here, and the context lives for one '
+                . 'test — create it in setUp() instead. Otherwise some earlier test skipped cleanup: '
+                . 'is the integration trait used by every class that creates doubles, and did an '
+                . 'override swallow assertPostConditions()?',
+            );
         }
     }
 
