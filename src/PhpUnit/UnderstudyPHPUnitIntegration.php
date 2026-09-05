@@ -126,6 +126,9 @@ trait UnderstudyPHPUnitIntegration
      * is closer to the test body than this bookkeeping, so its failure is the
      * one worth reporting — and it must run at all, which it would not if an
      * unmet expectation threw ahead of it.
+     *
+     * @internal PHPUnit hook; compose through the documented alias when the
+     * using test class also defines its own post-conditions.
      */
     protected function assertPostConditions(): void
     {
