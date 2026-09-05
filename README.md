@@ -116,8 +116,19 @@ abstract class ProjectTestCase extends TestCase
 ```
 
 A stub configured but never called then fails its test — the Mockito reading
-of "why did you configure it, then?". Per-double strictness stays available
-through `Understudy::strict($double)` regardless of this setting.
+of "why did you configure it, then?". There is no per-double form of it:
+`Understudy::strict($double)` is strict **dispatch** — "fail on any call no
+expectation matched" — and says nothing about a stub that was configured and
+never called. The per-double equivalent is `when(…)->times(n)`.
+
+**Verification runs before your teardown here, and after it under
+`understudy-testo`.** `assertPostConditions()` is called by PHPUnit *before*
+`tearDown()`; the Testo interceptor runs outside `#[AfterTest]`. Neither is
+wrong, but a test whose expectation is fulfilled by teardown itself fails here
+and passes there. `reset()` runs after teardown in both.
+
+A test that creates no double is not touched at all: nothing is counted for it,
+so `#[DoesNotPerformAssertions]` keeps meaning what it says.
 
 ### Overriding `assertPostConditions()` yourself
 
@@ -150,6 +161,7 @@ setup verb under another name:
 ```php
 use function Rasuvaeff\Understudy\expect as expectCall;
 use function Rasuvaeff\Understudy\verify as verifyCall;
+use function Rasuvaeff\Understudy\when;
 
 uses(UnderstudyPHPUnitIntegration::class)->in(__DIR__);
 

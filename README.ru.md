@@ -114,9 +114,20 @@ abstract class ProjectTestCase extends TestCase
 ```
 
 Настроенный, но ни разу не вызванный стаб тогда валит тест — прочтение
-Mockito: «зачем настраивали, если он не нужен?». Точечная строгость на
-конкретный дубль доступна через `Understudy::strict($double)` независимо от
-этой настройки.
+Mockito: «зачем настраивали, если он не нужен?». Точечной формы у этого нет:
+`Understudy::strict($double)` — строгий **диспатч** («упасть на любом вызове,
+который не поймало ни одно ожидание») и о настроенном и ни разу не вызванном
+стабе не говорит ничего. Аналог на один дубль — `when(…)->times(n)`.
+
+**Здесь верификация идёт до вашего teardown, а под `understudy-testo` — после.**
+`assertPostConditions()` PHPUnit вызывает *до* `tearDown()`; интерцептор Testo
+работает снаружи `#[AfterTest]`. Ни то, ни другое не неверно, но тест, чьё
+ожидание закрывает сам teardown, здесь упадёт, а там пройдёт. `reset()` в обоих
+случаях выполняется после teardown.
+
+Тест, не создавший ни одного дубля, адаптер не трогает: для него ничего не
+считается, так что `#[DoesNotPerformAssertions]` продолжает значить то, что
+написано.
 
 ### Собственный `assertPostConditions()`
 
@@ -148,6 +159,7 @@ understudy импортируется под другим именем:
 ```php
 use function Rasuvaeff\Understudy\expect as expectCall;
 use function Rasuvaeff\Understudy\verify as verifyCall;
+use function Rasuvaeff\Understudy\when;
 
 uses(UnderstudyPHPUnitIntegration::class)->in(__DIR__);
 

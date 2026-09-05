@@ -93,8 +93,10 @@ trait UnderstudyPHPUnitIntegration
         if (!Understudy::idle()) {
             throw new AssertionFailedError(
                 'The current execution context still holds understudies before this test started. '
-                . 'Some earlier test skipped cleanup: is the integration trait used by every '
-                . 'class that creates doubles, and did an override swallow assertPostConditions()?',
+                . 'A double created in setUpBeforeClass() lands here, and the context lives for one '
+                . 'test — create it in setUp() instead. Otherwise some earlier test skipped cleanup: '
+                . 'is the integration trait used by every class that creates doubles, and did an '
+                . 'override swallow assertPostConditions()?',
             );
         }
     }
@@ -120,6 +122,15 @@ trait UnderstudyPHPUnitIntegration
     {
         parent::assertPostConditions();
 
+        // A test that created no double asked understudy nothing, and there is
+        // no assertion attempt here to count. Counting one anyway made
+        // `#[DoesNotPerformAssertions]` report "performed 1 assertion" and turn
+        // the test risky — on exactly the tests that attribute is written for,
+        // in a class that inherits this trait along with everything else.
+        if (Understudy::idle()) {
+            return;
+        }
+
         // Verification is an assertion attempt even when it reports an unmet
         // expectation. Count it before the exception can leave this method.
         $this->addToAssertionCount(1);
@@ -134,8 +145,10 @@ trait UnderstudyPHPUnitIntegration
     /**
      * Whether stubs configured but never called should fail their test.
      *
-     * Override in a project-wide base class to turn strictness on everywhere;
-     * per-double strictness stays available through `Understudy::strict()`.
+     * Override in a project-wide base class to turn strictness on everywhere.
+     * There is no per-double form: `Understudy::strict()` is strict dispatch —
+     * "fail on any call no expectation matched" — and says nothing about a stub
+     * that was configured and never called. That is `when(…)->times(n)`.
      */
     protected function understudyStrictStubs(): bool
     {

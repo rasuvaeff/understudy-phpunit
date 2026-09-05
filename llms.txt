@@ -12,6 +12,12 @@ composer require --dev rasuvaeff/understudy-phpunit
 
 - Add `use UnderstudyPHPUnitIntegration;` inside the test class.
 - After a body that reaches `assertPostConditions()` (i.e. passed), `Understudy::verifyAll()` runs; an unmet `expect()` fails the test as an assertion failure.
+- A test that created NO double is skipped entirely here: no assertion is counted for it, so
+  `#[DoesNotPerformAssertions]` keeps meaning what it says.
+- Verification runs BEFORE your teardown (`assertPostConditions()` precedes `tearDown()`) and AFTER it
+  under `-testo`. `reset()` is after teardown in both.
+- `understudyStrictStubs()` has no per-double form: `Understudy::strict()` is strict DISPATCH, not
+  strict stubs. The per-double equivalent is `when(...)->times(n)`.
 - A failing body keeps its own exception — verification never runs for it.
 - An `#[After]` hook resets the context unconditionally; doubles never leak between tests.
 - An `#[Before]` guard fails with a diagnostic when the previous context was not idle.
