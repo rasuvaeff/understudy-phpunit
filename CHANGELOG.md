@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.4.0 — 2026-09-05
+
+A minor rather than a patch: the trait's PHPUnit lifecycle hooks are all
+`@internal`. Their `protected` visibility is required for PHPUnit discovery,
+not an invitation to override them. A test class that owns post-conditions
+must use the documented trait alias to compose them explicitly.
+
 ## 0.3.0 — 2026-09-05
 
 A minor rather than a patch: two methods of the trait become `@internal`, and
