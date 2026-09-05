@@ -43,6 +43,17 @@ final class UnderstudyPHPUnitIntegrationTest
         Assert::true(Understudy::idle());
     }
 
+    public function allTraitHooksAreInternal(): void
+    {
+        $reflection = new \ReflectionClass(\Rasuvaeff\Understudy\PhpUnit\UnderstudyPHPUnitIntegration::class);
+
+        foreach (['understudyPrepareContext', 'understudyResetContext', 'assertPostConditions'] as $method) {
+            $docblock = $reflection->getMethod($method)->getDocComment();
+
+            Assert::true($docblock !== false && str_contains($docblock, '@internal'));
+        }
+    }
+
     public function unmetExpectationFailsAsAnAssertionFailure(): void
     {
         $test = new SpyUsingTrait('probe');
