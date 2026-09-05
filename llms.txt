@@ -1,4 +1,4 @@
-# understudy-phpunit
+# rasuvaeff/understudy-phpunit
 
 PHPUnit adapter for rasuvaeff/understudy (test double library: `when(fn () => $repo->find(123))->returns($book)`).
 

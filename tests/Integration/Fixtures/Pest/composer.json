@@ -15,7 +15,7 @@
             "options": {
                 "symlink": false,
                 "versions": {
-                    "rasuvaeff/understudy-phpunit": "0.2.0"
+                    "rasuvaeff/understudy-phpunit": "0.2.1"
                 }
             }
         },

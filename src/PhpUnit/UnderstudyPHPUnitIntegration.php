@@ -86,6 +86,13 @@ trait UnderstudyPHPUnitIntegration
      * Refuses to start a test over a context some earlier test left behind —
      * that is what a broken integration looks like, and the doubles in it
      * would answer this test too.
+     *
+     * `protected` because PHPUnit discovers hook methods by attribute and a
+     * trait cannot keep them private from the class using it — not because a
+     * subclass is meant to override it. The two hooks are the mechanism, not
+     * the contract: only {@see understudyStrictStubs()} is an override point.
+     *
+     * @internal
      */
     #[Before]
     protected function understudyPrepareContext(): void
@@ -105,6 +112,8 @@ trait UnderstudyPHPUnitIntegration
      * Drops the context unconditionally. PHPUnit does not reach
      * `assertPostConditions()` after a failing body, so this — not that
      * method — is where cleanup is guaranteed to happen.
+     *
+     * @internal see {@see understudyPrepareContext()} for why it is protected
      */
     #[After]
     protected function understudyResetContext(): void

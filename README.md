@@ -32,9 +32,9 @@ teardown runs. For a value that owns an OS resource — a stream, a connection,
 a lock — the resource is still held: a forwarding double that returned real
 file streams made teardown's directory removal fail with "Directory not
 empty", on Windows only, because POSIX unlinks open files. Build such a double
-lean (`Understudy::lean($double)` keeps calls, not returned values; understudy
-0.4+), or build and use it inside `Understudy::scope()`, which drops the
-context before teardown.
+lean (`Understudy::lean($double)` keeps calls, not returned values), or build
+and use it inside `Understudy::scope()`, which drops the context before
+teardown.
 
 > Using an AI coding assistant? [llms.txt](llms.txt) is a compact API
 > reference it can load instead of guessing.
@@ -43,7 +43,7 @@ context before teardown.
 
 - PHP 8.3 – 8.5
 - `phpunit/phpunit` (`^11.5 || ^12.0 || ^13.0`)
-- `rasuvaeff/understudy` (`^0.8`)
+- `rasuvaeff/understudy` (`^0.8 || ^1.0`)
 
 Pest works too — it runs on PHPUnit, so the same trait applies through
 `uses()`. Proven against Pest 4; see the Pest section below.
