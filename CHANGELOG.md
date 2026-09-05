@@ -7,11 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.2.1 — 2026-09-05
 
-- Allows `rasuvaeff/understudy` `^0.8 || ^1.0`. The one union this package
-  will carry: it bridges the engine's 1.0 release, so that a project on the
-  engine's 1.0 can keep this adapter without a window in which `composer
-  require` silently installs the 0.8 engine beside it, and it is narrowed to
-  `^1.0` in the release that follows the engine's.
+- Allows `rasuvaeff/understudy` `^0.8 || ^0.9`. A bridge, not a widening for
+  its own sake: the engine's 0.9 is the 1.0 candidate — every contract decision
+  of the 1.0 review lands there, and 1.0 follows once it has been driven by real
+  packages — and a project taking it must be able to keep this adapter without a
+  window in which `composer require` silently installs the 0.8 engine beside
+  it. The `^0.8` term is dropped in the release that follows the engine's.
 - The two hook methods of the trait, `understudyPrepareContext()` and
   `understudyResetContext()`, are `@internal`. They are `protected` because
   PHPUnit discovers hooks by attribute and a trait cannot hide them from the

@@ -43,7 +43,7 @@ empty» — только на Windows, потому что POSIX удаляет 
 
 - PHP 8.3 – 8.5
 - `phpunit/phpunit` (`^11.5 || ^12.0 || ^13.0`)
-- `rasuvaeff/understudy` (`^0.8 || ^1.0`)
+- `rasuvaeff/understudy` (`^0.8 || ^0.9`)
 
 Pest тоже работает: он стоит на PHPUnit, поэтому тот же трейт подключается
 через `uses()`. Проверено на Pest 4 — см. секцию Pest ниже.
