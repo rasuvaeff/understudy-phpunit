@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.4.1 — 2026-09-06
+
+- Requires `rasuvaeff/understudy` `^0.9 || ^0.10`. The engine's 0.10 closes six
+  defects of the 1.0 review, the widest of them being that an optional
+  parameter no longer has to be spelled in a specification: `when(fn () =>
+  $repository->find(1))` now matches a contract whose remaining parameters
+  carry defaults, and an unspelled position is rendered as `…` in reports so
+  it is never mistaken for a written `any()`. Nothing this adapter does changes
+  — the arity suppression it carries is about `Arg::rest()`, which still
+  covers the contract's *required* parameters and only those.
+- Drops the `^0.8` term, as 0.4.0 said it would in the release that
+  follows the engine's.
+- Moves the Pest fixture's path-repository pins with the release, as this
+  package's own rule requires: the engine to `0.10.0`, this package to
+  `0.4.1`, and the fixture's requirement to `^0.4`. A path repository is
+  canonical, so a stale pin does not fall back to Packagist — left alone,
+  `^0.8` would have kept the README's recipe resolvable and never once run
+  it against 0.10.
+
 ## 0.4.0 — 2026-09-05
 
 A minor rather than a patch: the trait's PHPUnit lifecycle hooks are all
