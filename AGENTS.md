@@ -121,9 +121,12 @@ make release-check
   the classes.
 - **Process isolation re-runs the bootstrap per child process** — which is
   exactly what makes `bypassFinals()` work there, and exactly why the claim
-  needs a dedicated fixture (`ProcessIsolation/`). Keep `cacheResult="false"`
-  in those `phpunit.xml` files: PHPUnit's result cache writes go through our
-  own `file://` stream wrapper and warn about unsupported locks otherwise.
+  needs a dedicated fixture (`ProcessIsolation/`). Keep test-run history
+  disabled through `runPhpunit()`'s version-selected CLI option: PHPUnit 11,
+  12, and 13.0-13.2 use `--do-not-cache-result`; PHPUnit 13.3+ renamed it to
+  `--do-not-record-test-run-history`. A shared `phpunit.xml` cannot name both.
+  Enabling it lets result-cache writes go through our own `file://` stream
+  wrapper and warn about unsupported locks.
 - **Exit codes of the spawned phpunit differ by outcome** (failures → 1,
   errors → 2, success → 0); pin them per scenario rather than asserting
   "non-zero".

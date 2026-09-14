@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Rasuvaeff\Understudy\PhpUnit\Tests\Integration;
 
+use PHPUnit\Runner\Version;
 use Testo\Assert;
 use Testo\Codecov\CoversNothing;
 use Testo\Core\Exception\SkipTest;
@@ -167,12 +168,16 @@ final class PhpunitLifecycleIntegrationTest
     {
         $root = dirname(__DIR__, 2);
         $config = __DIR__ . '/Fixtures/' . $fixture . '/phpunit.xml';
+        $disableHistory = version_compare(Version::id(), '13.3.0', '>=')
+            ? '--do-not-record-test-run-history'
+            : '--do-not-cache-result';
 
         $command = sprintf(
-            '%s %s -c %s --no-progress 2>&1',
+            '%s %s -c %s --no-progress %s 2>&1',
             escapeshellarg(PHP_BINARY),
             escapeshellarg($root . '/vendor/bin/phpunit'),
             escapeshellarg($config),
+            $disableHistory,
         );
 
         exec($command, $lines, $exit);
