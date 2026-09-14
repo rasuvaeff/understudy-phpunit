@@ -107,7 +107,7 @@ final class DocumentedUsageTest
 
     private function read(string $file): string
     {
-        $path = \dirname(__DIR__) . '/' . $file;
+        $path = __DIR__ . '/../' . $file;
         $contents = file_get_contents($path);
 
         Assert::true($contents !== false, $file . ' is unreadable');
