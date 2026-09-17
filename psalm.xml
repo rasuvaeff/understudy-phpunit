@@ -10,4 +10,20 @@
             <directory name="vendor"/>
         </ignoreFiles>
     </projectFiles>
+    <issueHandlers>
+        <!--
+            PHPUnit marks TestStatus @internal, but TestCase::status() — public and
+            final since PHPUnit 10 — hands it out, and the two predicates read
+            here are the only way for an #[After] hook to know whether the body
+            passed. The table test in UnderstudyPHPUnitIntegrationTest pins both
+            across the supported PHPUnit majors; a rename there fails the suite,
+            not a consumer.
+        -->
+        <InternalMethod>
+            <errorLevel type="suppress">
+                <referencedMethod name="PHPUnit\Framework\TestStatus\TestStatus::isSuccess"/>
+                <referencedMethod name="PHPUnit\Framework\TestStatus\TestStatus::isUnknown"/>
+            </errorLevel>
+        </InternalMethod>
+    </issueHandlers>
 </psalm>

@@ -83,6 +83,14 @@ use Rasuvaeff\Understudy\Understudy;
 trait UnderstudyPHPUnitIntegration
 {
     /**
+     * Whether this test's post-conditions reached the verification. Cleared by
+     * the `#[Before]` hook, set by {@see assertPostConditions()}, read by the
+     * `#[After]` hook — the one place that can tell a verification that never
+     * ran from one that found nothing to report.
+     */
+    private bool $understudyVerified = false;
+
+    /**
      * Refuses to start a test over a context some earlier test left behind —
      * that is what a broken integration looks like, and the doubles in it
      * would answer this test too.
@@ -97,6 +105,8 @@ trait UnderstudyPHPUnitIntegration
     #[Before]
     protected function understudyPrepareContext(): void
     {
+        $this->understudyVerified = false;
+
         if (!Understudy::idle()) {
             throw new AssertionFailedError(
                 'The current execution context still holds understudies before this test started. '
@@ -113,12 +123,31 @@ trait UnderstudyPHPUnitIntegration
      * `assertPostConditions()` after a failing body, so this — not that
      * method — is where cleanup is guaranteed to happen.
      *
+     * Before dropping it, one check: a body that passed, held doubles, and
+     * whose post-conditions never reached the verification is a class that
+     * overrides `assertPostConditions()` without composing the trait's. That
+     * used to be silent — the reset ran, the next test's guard found a clean
+     * context, and every `expect()` in the class was green forever. An
+     * `AssertionFailedError` from an `#[After]` hook is a failure of the test,
+     * which is what an unverified expectation is.
+     *
      * @internal see {@see understudyPrepareContext()} for why it is protected
      */
     #[After]
     protected function understudyResetContext(): void
     {
-        Understudy::reset();
+        try {
+            if (UnverifiedRun::detected($this->understudyVerified, $this->status(), Understudy::idle())) {
+                throw new AssertionFailedError(
+                    'This test created understudies and passed, but its expectations were never verified: '
+                    . 'assertPostConditions() did not reach the trait. The class overrides assertPostConditions() '
+                    . 'without composing the trait\'s — alias it (UnderstudyPHPUnitIntegration::assertPostConditions '
+                    . 'as understudyAssertPostConditions) and call the alias from your own, as the README shows.',
+                );
+            }
+        } finally {
+            Understudy::reset();
+        }
     }
 
     /**
@@ -133,6 +162,8 @@ trait UnderstudyPHPUnitIntegration
     protected function assertPostConditions(): void
     {
         parent::assertPostConditions();
+
+        $this->understudyVerified = true;
 
         // A test that created no double asked understudy nothing, and there is
         // no assertion attempt here to count. Counting one anyway made

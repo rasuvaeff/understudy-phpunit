@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+- **Fixed.** A test class that overrides `assertPostConditions()` without
+  composing the trait's used to skip verification silently: the `#[After]`
+  reset ran, the next test's guard found a clean context, and every
+  `expect()` in the class stayed green forever. The reset hook now notices
+  a passing body that held doubles and never reached the verification, and
+  fails the test with the aliasing recipe from the README — then resets as
+  before. Nothing changes for a class that composes the trait correctly, has
+  no doubles, or whose body failed or was skipped.
+
 ## 0.4.1 — 2026-09-06
 
 - Requires `rasuvaeff/understudy` `^0.9 || ^0.10`. The engine's 0.10 closes six

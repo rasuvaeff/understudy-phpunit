@@ -99,7 +99,16 @@ make release-check
 - **Trait-vs-class shadowing is silent in PHP**: a class method named
   `assertPostConditions()` wins over the trait's without any error. The README
   documents explicit alias composition for it; never "fix" this with tricks
-  like method_exists probing at runtime.
+  like method_exists probing at runtime. What the `#[After]` hook does instead
+  is *notice*: a passing body with doubles whose post-conditions never set the
+  `$understudyVerified` flag fails with the aliasing recipe. Detection, not
+  a workaround — the trait's verification is still only reached by composing.
+- **`TestStatus` is `@internal` to PHPUnit, and the `#[After]` hook reads it
+  anyway** (`isSuccess()`/`isUnknown()`, through the public, final
+  `TestCase::status()`): it is the only way to tell "the body passed and
+  verification never ran" from "the body failed and PHPUnit already said so".
+  `psalm.xml` suppresses `InternalMethod` for exactly those two methods; the
+  table test on `UnverifiedRun` pins them across the supported majors.
 - **`#[Before]`/`#[After]` hooks work from traits** — that is how the guard and
   the reset get invoked without the user writing anything. But
   `#[\Override]` on a class method overriding a *trait*-provided method is a

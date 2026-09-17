@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Rasuvaeff\Understudy\PhpUnit\Tests;
 
 use PHPUnit\Framework\AssertionFailedError;
+use PHPUnit\Framework\TestStatus\TestStatus;
 use Rasuvaeff\Understudy\Exception\VerificationFailed;
 use Rasuvaeff\Understudy\PhpUnit\Tests\Fixture\AliasedSpy;
 use Rasuvaeff\Understudy\PhpUnit\Tests\Fixture\ChainedSpyBase;
@@ -13,14 +14,19 @@ use Rasuvaeff\Understudy\PhpUnit\Tests\Fixture\SpyContract;
 use Rasuvaeff\Understudy\PhpUnit\Tests\Fixture\SpyUsingTrait;
 use Rasuvaeff\Understudy\PhpUnit\Tests\Fixture\SpyWithoutTrait;
 use Rasuvaeff\Understudy\PhpUnit\Tests\Fixture\StrictSpyUsingTrait;
+use Rasuvaeff\Understudy\PhpUnit\Tests\Fixture\SwallowingSpy;
+use Rasuvaeff\Understudy\PhpUnit\UnverifiedRun;
 use Rasuvaeff\Understudy\Understudy;
 use Testo\Assert;
 use Testo\Codecov\Covers;
+use Testo\Data\DataProvider;
+use Testo\Expect;
 use Testo\Lifecycle\BeforeTest;
 use Testo\Test;
 
 #[Test]
 #[Covers(\Rasuvaeff\Understudy\PhpUnit\UnderstudyPHPUnitIntegration::class)]
+#[Covers(UnverifiedRun::class)]
 final class UnderstudyPHPUnitIntegrationTest
 {
     #[BeforeTest]
@@ -41,6 +47,99 @@ final class UnderstudyPHPUnitIntegrationTest
         $test->runReset();
 
         Assert::true(Understudy::idle());
+    }
+
+    /**
+     * The hole the `#[Before]` guard cannot see: a class that overrides
+     * `assertPostConditions()` without composing the trait's skips the
+     * verification, and the `#[After]` reset then hands the next test a clean
+     * context. The reset hook now notices that a passing body with doubles
+     * was never verified and fails the test — and still resets.
+     */
+    public function aSwallowedPostConditionFailsTheTestInsteadOfPassingSilently(): void
+    {
+        $test = new SwallowingSpy('probe');
+        $test->runGuard();
+        $test->declareUnmetExpectation();
+        $test->runPostConditions();
+
+        Assert::true($test->ownPostConditionsRan);
+
+        try {
+            $test->runReset();
+
+            Assert::fail('Expected the reset hook to report the unverified expectation');
+        } catch (AssertionFailedError $failure) {
+            Assert::same(
+                $failure->getMessage(),
+                'This test created understudies and passed, but its expectations were never verified: '
+                . 'assertPostConditions() did not reach the trait. The class overrides assertPostConditions() '
+                . 'without composing the trait\'s — alias it (UnderstudyPHPUnitIntegration::assertPostConditions '
+                . 'as understudyAssertPostConditions) and call the alias from your own, as the README shows.',
+            );
+        }
+
+        Assert::true(Understudy::idle());
+    }
+
+    /**
+     * The same reset hook stays quiet on every legitimate path: no doubles at
+     * all, doubles whose verification did run, and — with the guard cleared
+     * per test — a second test after a verified one.
+     */
+    public function theResetHookStaysQuietWhenVerificationRan(): void
+    {
+        $test = new SpyUsingTrait('probe');
+        $test->runGuard();
+        $test->declareSatisfiedExpectation();
+        $test->runPostConditions();
+        $test->runReset();
+
+        Assert::true(Understudy::idle());
+
+        $test->runGuard();
+        $test->runReset();
+
+        Assert::true(Understudy::idle());
+    }
+
+    /**
+     * The flag is per test, not per instance: a verified first test must not
+     * vouch for a second one whose post-conditions were swallowed.
+     */
+    public function theGuardIsClearedForEveryTest(): void
+    {
+        $test = new SwallowingSpy('probe');
+        $test->runGuard();
+        $test->declareSatisfiedExpectation();
+        $test->understudyAssertPostConditionsForTheTest();
+        $test->runReset();
+
+        $test->runGuard();
+        $test->declareUnmetExpectation();
+        $test->runPostConditions();
+
+        Expect::exception(AssertionFailedError::class)->withMessageContaining('never verified');
+
+        $test->runReset();
+    }
+
+    #[DataProvider('unverifiedRunProvider')]
+    public function theResetHookDecidesFromTheFlagTheStatusAndTheContext(bool $verified, TestStatus $status, bool $idle, bool $detected): void
+    {
+        Assert::same(UnverifiedRun::detected($verified, $status, $idle), $detected);
+    }
+
+    public static function unverifiedRunProvider(): iterable
+    {
+        yield 'passed, doubles, never verified' => [false, TestStatus::success(), false, true];
+        yield 'driven by hand, doubles, never verified' => [false, TestStatus::unknown(), false, true];
+        yield 'verified' => [true, TestStatus::success(), false, false];
+        yield 'no doubles' => [false, TestStatus::success(), true, false];
+        yield 'body failed' => [false, TestStatus::failure('x'), false, false];
+        yield 'body errored' => [false, TestStatus::error('x'), false, false];
+        yield 'body skipped' => [false, TestStatus::skipped('x'), false, false];
+        yield 'body incomplete' => [false, TestStatus::incomplete('x'), false, false];
     }
 
     public function allTraitHooksAreInternal(): void
@@ -166,6 +265,7 @@ final class UnderstudyPHPUnitIntegrationTest
     {
         $test = new SpyUsingTrait('probe');
         $test->declareSatisfiedExpectation();
+        $test->runPostConditions();
 
         $test->runReset();
 
