@@ -22,6 +22,7 @@ composer require --dev rasuvaeff/understudy-phpunit
 - An `#[After]` hook resets the context unconditionally; doubles never leak between tests.
 - An `#[Before]` guard fails with a diagnostic when the previous context was not idle.
 - Override `understudyStrictStubs(): bool` in a base class to fail unused stubs project-wide. Default: false.
+- An override of `assertPostConditions()` that does not compose the trait's is caught: a passing body with doubles that never reached verification fails in the `#[After]` hook (which still resets).
 - If the class overrides `assertPostConditions()`, compose explicitly with trait alias (`as understudyAssertPostConditions`) — silent shadowing disables verification.
 - The trait calls `parent::assertPostConditions()` BEFORE verifying: your own post-conditions always run, and their failure is reported first.
 - Verification adds exactly 1 to the PHPUnit assertion count.

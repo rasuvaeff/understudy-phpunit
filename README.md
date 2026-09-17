@@ -153,6 +153,10 @@ post-conditions always run and their failure is reported ahead of an unmet
 expectation — the check closer to the test body wins. Keep that order in an
 explicit composition too.
 
+An override that forgets to compose is not silent: a body that passed, held
+doubles, and never reached the trait's verification fails in the `#[After]`
+hook with this recipe in the message — and the context is still reset.
+
 ### Pest
 
 Pest already owns the global `expect()` function, so import understudy's
