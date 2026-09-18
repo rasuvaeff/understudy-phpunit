@@ -5,8 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## 0.5.0 — 2026-09-18
 
+- **Changed.** Accepts `rasuvaeff/understudy` `^0.11` alongside `^0.9 || ^0.10`: the engine's 0.11.0 adds a refusal where there was a fatal, a nested-call check and a `returns()` type check, none of which this package reads; the bridge is widened, not moved.
 - **Fixed.** A test class that overrides `assertPostConditions()` without
   composing the trait's used to skip verification silently: the `#[After]`
   reset ran, the next test's guard found a clean context, and every
