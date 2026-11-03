@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+- Mutation testing now counts code the tests do not name in `#[Covers]` (`infection --with-uncovered`), with the signature-default and visibility mutators configured as in the package template.
+- The two failure messages in the trait are built into a local `$message` before being thrown. Behaviour is unchanged (same text, same exception); the compiler no longer folds the literal concatenation away, so its mutants are measurable.
+
 ## 1.0.0 — 2026-09-27
 
 The stability release, following `rasuvaeff/understudy` 1.0.0. The trait's
