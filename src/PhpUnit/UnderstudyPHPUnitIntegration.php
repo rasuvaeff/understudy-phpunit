@@ -108,13 +108,13 @@ trait UnderstudyPHPUnitIntegration
         $this->understudyVerified = false;
 
         if (!Understudy::idle()) {
-            throw new AssertionFailedError(
-                'The current execution context still holds understudies before this test started. '
+            $message = 'The current execution context still holds understudies before this test started. '
                 . 'A double created in setUpBeforeClass() lands here, and the context lives for one '
                 . 'test — create it in setUp() instead. Otherwise some earlier test skipped cleanup: '
                 . 'is the integration trait used by every class that creates doubles, and did an '
-                . 'override swallow assertPostConditions()?',
-            );
+                . 'override swallow assertPostConditions()?';
+
+            throw new AssertionFailedError($message);
         }
     }
 
@@ -138,12 +138,12 @@ trait UnderstudyPHPUnitIntegration
     {
         try {
             if (UnverifiedRun::detected($this->understudyVerified, $this->status(), Understudy::idle())) {
-                throw new AssertionFailedError(
-                    'This test created understudies and passed, but its expectations were never verified: '
+                $message = 'This test created understudies and passed, but its expectations were never verified: '
                     . 'assertPostConditions() did not reach the trait. The class overrides assertPostConditions() '
                     . 'without composing the trait\'s — alias it (UnderstudyPHPUnitIntegration::assertPostConditions '
-                    . 'as understudyAssertPostConditions) and call the alias from your own, as the README shows.',
-                );
+                    . 'as understudyAssertPostConditions) and call the alias from your own, as the README shows.';
+
+                throw new AssertionFailedError($message);
             }
         } finally {
             Understudy::reset();
