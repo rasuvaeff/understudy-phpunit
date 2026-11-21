@@ -10,8 +10,10 @@ done for the user. It ships exactly one trait:
 
 - `Rasuvaeff\Understudy\PhpUnit\UnderstudyPHPUnitIntegration` —
   verify-after-success via `assertPostConditions()`, unconditional reset in
-  an `#[After]` hook, `#[Before]` guard over leaked contexts, optional
-  project-wide strict stubs through `understudyStrictStubs()`.
+  an `#[After]` hook, `#[Before]` guard over leaked contexts, strict stubs
+  per test through the core `#[StrictStubs]` attribute (resolved by
+  `StrictStubs::resolve()`), with `understudyStrictStubs()` as the
+  project-wide fallback below it.
 
 Everything algorithmic — doubles, expectations, matchers, verification — lives
 in the core package; do not fix engine behaviour from here. The design plan
@@ -25,7 +27,8 @@ in this file, the READMEs and the lifecycle table below.
 2. **No suppressions.** No `@psalm-suppress`, no baseline. Fix the root cause.
 3. **The adapter adds no operations and no state.** Every doubling operation
    belongs to the core facade; the trait may only call `Understudy::verifyAll()`,
-   `Understudy::reset()` and `Understudy::idle()`, read nothing internal, and
+   `Understudy::reset()`, `Understudy::idle()` and `StrictStubs::resolve()`
+   (core 1.2.0, the bridge contract for the attribute), read nothing internal, and
    keep no mutable fields. A change that grows either list is a design
    decision to be made in the core package first.
 4. **Preserve the public contract.** Update README + tests with any API change.

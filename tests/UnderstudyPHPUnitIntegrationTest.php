@@ -8,8 +8,13 @@ use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\TestStatus\TestStatus;
 use Rasuvaeff\Understudy\Exception\VerificationFailed;
 use Rasuvaeff\Understudy\PhpUnit\Tests\Fixture\AliasedSpy;
+use Rasuvaeff\Understudy\PhpUnit\Tests\Fixture\AttributesOverStrictDefaultSpy;
 use Rasuvaeff\Understudy\PhpUnit\Tests\Fixture\ChainedSpyBase;
 use Rasuvaeff\Understudy\PhpUnit\Tests\Fixture\ChainedSpyUsingTrait;
+use Rasuvaeff\Understudy\PhpUnit\Tests\Fixture\ClassLenientSubclassSpy;
+use Rasuvaeff\Understudy\PhpUnit\Tests\Fixture\ClassStrictSpy;
+use Rasuvaeff\Understudy\PhpUnit\Tests\Fixture\InheritedStrictSpy;
+use Rasuvaeff\Understudy\PhpUnit\Tests\Fixture\MethodStrictSpy;
 use Rasuvaeff\Understudy\PhpUnit\Tests\Fixture\SpyContract;
 use Rasuvaeff\Understudy\PhpUnit\Tests\Fixture\SpyUsingTrait;
 use Rasuvaeff\Understudy\PhpUnit\Tests\Fixture\SpyWithoutTrait;
@@ -221,6 +226,60 @@ final class UnderstudyPHPUnitIntegrationTest
         }
 
         Understudy::reset();
+    }
+
+    /**
+     * `#[StrictStubs]` on the test method wins over its class, the running
+     * class over the class that declared the method, then parents, and any
+     * attribute over `understudyStrictStubs()`. Each case runs a fixture
+     * method by the name the test was constructed with, as PHPUnit does: with
+     * a name the class does not have, only the class level would answer and a
+     * method case would prove nothing. The unknown-name path is the one the
+     * two `strictStubs*AnUnusedStub` tests above take.
+     *
+     * @param class-string<SpyUsingTrait> $class
+     * @param non-empty-string            $method
+     */
+    #[DataProvider('strictStubsAttributeProvider')]
+    public function strictStubsAttributeDecidesWhetherAnUnusedStubFails(string $class, string $method, bool $strict): void
+    {
+        $test = new $class($method);
+        $test->{$method}();
+
+        $failure = null;
+
+        try {
+            $test->runPostConditions();
+        } catch (AssertionFailedError $caught) {
+            $failure = $caught;
+        } finally {
+            Understudy::reset();
+        }
+
+        if (!$strict) {
+            Assert::null($failure);
+
+            return;
+        }
+
+        Assert::instanceOf($failure, AssertionFailedError::class);
+        Assert::string($failure->getMessage())->contains('never used');
+    }
+
+    public static function strictStubsAttributeProvider(): iterable
+    {
+        yield 'default, no attribute' => [SpyUsingTrait::class, 'declareUnusedStub', false];
+        yield 'class on' => [ClassStrictSpy::class, 'plainMethod', true];
+        yield 'class on, inherited from the parent' => [InheritedStrictSpy::class, 'plainMethod', true];
+        yield 'class off over a strict understudyStrictStubs()' => [AttributesOverStrictDefaultSpy::class, 'plainMethod', false];
+        yield 'method on over the default' => [MethodStrictSpy::class, 'strictMethod', true];
+        yield 'no method attribute keeps the default' => [MethodStrictSpy::class, 'plainMethod', false];
+        yield 'method off over a strict understudyStrictStubs()' => [StrictSpyUsingTrait::class, 'lenientMethod', false];
+        yield 'method off beats class on' => [ClassStrictSpy::class, 'lenientMethod', false];
+        yield 'method on beats class off' => [AttributesOverStrictDefaultSpy::class, 'strictMethod', true];
+        yield 'subclass off beats the declaring class on' => [ClassLenientSubclassSpy::class, 'plainMethod', false];
+        yield 'method on beats the subclass off' => [ClassLenientSubclassSpy::class, 'strictMethod', true];
+        yield 'fallback to understudyStrictStubs()' => [StrictSpyUsingTrait::class, 'plainMethod', true];
     }
 
     public function guardRefusesToStartOverALeakedContext(): void

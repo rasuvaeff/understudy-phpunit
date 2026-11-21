@@ -43,7 +43,7 @@ empty» — только на Windows, потому что POSIX удаляет 
 
 - PHP 8.3 – 8.5
 - `phpunit/phpunit` (`^11.5 || ^12.0 || ^13.0`)
-- `rasuvaeff/understudy` (`^1.0`)
+- `rasuvaeff/understudy` (`^1.2`)
 
 Pest тоже работает: он стоит на PHPUnit, поэтому тот же трейт подключается
 через `uses()`. Проверено на Pest 4 — см. секцию Pest ниже.
@@ -99,7 +99,25 @@ final class CheckoutTest extends TestCase
 
 ### Strict stubs
 
-Базовый класс может включить строгость для всего проекта:
+Атрибут ядра `#[StrictStubs]` переключает строгость для одного тест-класса
+или одного тест-метода — тот же атрибут читает `understudy-testo`:
+
+```php
+use Rasuvaeff\Understudy\StrictStubs;
+
+#[StrictStubs]
+final class CheckoutTest extends TestCase
+{
+    use UnderstudyPHPUnitIntegration;
+
+    #[StrictStubs(false)]
+    public function testLegacyPath(): void {}
+}
+```
+
+Атрибут метода сильнее атрибута класса, исполняемый тест-класс — класса,
+объявившего метод, дальше — его родители. Где атрибута нет, проектное
+умолчание задаёт базовый класс:
 
 ```php
 abstract class ProjectTestCase extends TestCase
@@ -113,7 +131,8 @@ abstract class ProjectTestCase extends TestCase
 }
 ```
 
-Настроенный, но ни разу не вызванный стаб тогда валит тест — прочтение
+Настроенный, но ни разу не вызванный стаб тогда валит тест, если атрибут
+не выключил строгость — прочтение
 Mockito: «зачем настраивали, если он не нужен?». Точечной формы у этого нет:
 `Understudy::strict($double)` — строгий **диспатч** («упасть на любом вызове,
 который не поймало ни одно ожидание») и о настроенном и ни разу не вызванном
