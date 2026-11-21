@@ -41,7 +41,7 @@ teardown.
 
 ## Requirements
 
-- PHP 8.3 – 8.5
+- PHP 8.3 – 8.6
 - `phpunit/phpunit` (`^11.5 || ^12.0 || ^13.0`)
 - `rasuvaeff/understudy` (`^1.2`)
 
