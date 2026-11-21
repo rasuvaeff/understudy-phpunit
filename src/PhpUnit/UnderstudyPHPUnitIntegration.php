@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;
 use Rasuvaeff\Understudy\Exception\VerificationFailed;
+use Rasuvaeff\Understudy\StrictStubs;
 use Rasuvaeff\Understudy\Understudy;
 
 /**
@@ -53,8 +54,10 @@ use Rasuvaeff\Understudy\Understudy;
  * error that actually happened. Either way the context is reset, so nothing
  * leaks into the next test.
  *
- * A base class may flip strict stubbing for a whole project by overriding
- * {@see understudyStrictStubs()}.
+ * Strict stubbing is switched per test by the core `#[StrictStubs]` attribute
+ * on the test method or class ({@see StrictStubs::resolve()}); a base class
+ * may still set the project-wide default by overriding
+ * {@see understudyStrictStubs()}, which applies where no attribute does.
  *
  * If the class also overrides `assertPostConditions()` itself, PHP resolves
  * the conflict silently in favour of the class — the trait's verification
@@ -179,16 +182,22 @@ trait UnderstudyPHPUnitIntegration
         $this->addToAssertionCount(1);
 
         try {
-            Understudy::verifyAll($this->understudyStrictStubs());
+            Understudy::verifyAll(StrictStubs::resolve(
+                class: static::class,
+                method: $this->name(),
+                default: $this->understudyStrictStubs(),
+            ));
         } catch (VerificationFailed $failure) {
             throw new AssertionFailedError($failure->getMessage(), $failure->getCode(), $failure);
         }
     }
 
     /**
-     * Whether stubs configured but never called should fail their test.
+     * Whether stubs configured but never called should fail their test, where
+     * no `#[StrictStubs]` attribute on the test method or class says otherwise.
      *
-     * Override in a project-wide base class to turn strictness on everywhere.
+     * Override in a project-wide base class to turn strictness on everywhere;
+     * the attribute then switches it per class or per method, both ways.
      * There is no per-double form: `Understudy::strict()` is strict dispatch —
      * "fail on any call no expectation matched" — and says nothing about a stub
      * that was configured and never called. That is `when(…)->times(n)`.

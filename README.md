@@ -43,7 +43,7 @@ teardown.
 
 - PHP 8.3 – 8.5
 - `phpunit/phpunit` (`^11.5 || ^12.0 || ^13.0`)
-- `rasuvaeff/understudy` (`^1.0`)
+- `rasuvaeff/understudy` (`^1.2`)
 
 Pest works too — it runs on PHPUnit, so the same trait applies through
 `uses()`. Proven against Pest 4; see the Pest section below.
@@ -101,7 +101,25 @@ from another library:
 
 ### Strict stubs
 
-A base class can flip strictness for a whole project:
+The core `#[StrictStubs]` attribute switches strictness for one test class or
+one test method — the same attribute `understudy-testo` reads:
+
+```php
+use Rasuvaeff\Understudy\StrictStubs;
+
+#[StrictStubs]
+final class CheckoutTest extends TestCase
+{
+    use UnderstudyPHPUnitIntegration;
+
+    #[StrictStubs(false)]
+    public function testLegacyPath(): void {}
+}
+```
+
+The method's attribute wins over its class, the running test class over the
+class that declared the method, then its parents. Where no attribute says
+anything, a base class sets the project-wide default:
 
 ```php
 abstract class ProjectTestCase extends TestCase
@@ -115,7 +133,8 @@ abstract class ProjectTestCase extends TestCase
 }
 ```
 
-A stub configured but never called then fails its test — the Mockito reading
+A stub configured but never called then fails its test, unless an attribute
+switches it off — the Mockito reading
 of "why did you configure it, then?". There is no per-double form of it:
 `Understudy::strict($double)` is strict **dispatch** — "fail on any call no
 expectation matched" — and says nothing about a stub that was configured and

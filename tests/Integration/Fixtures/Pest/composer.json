@@ -5,7 +5,7 @@
     "license": "BSD-3-Clause",
     "require-dev": {
         "pestphp/pest": "^4.0",
-        "rasuvaeff/understudy-phpunit": "^1.0"
+        "rasuvaeff/understudy-phpunit": "^1.1"
     },
     "minimum-stability": "stable",
     "repositories": [
@@ -15,7 +15,7 @@
             "options": {
                 "symlink": false,
                 "versions": {
-                    "rasuvaeff/understudy-phpunit": "1.0.0"
+                    "rasuvaeff/understudy-phpunit": "1.1.0"
                 }
             }
         },
@@ -25,7 +25,7 @@
             "options": {
                 "symlink": false,
                 "versions": {
-                    "rasuvaeff/understudy": "1.0.0"
+                    "rasuvaeff/understudy": "1.2.1"
                 }
             }
         }

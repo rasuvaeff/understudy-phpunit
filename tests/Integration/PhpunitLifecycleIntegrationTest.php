@@ -58,6 +58,24 @@ final class PhpunitLifecycleIntegrationTest
     }
 
     /**
+     * `#[StrictStubs]` read under a real runner, on all three PHPUnit majors
+     * through `phpunit-versions`: the class switches strictness on, a method
+     * switches it off, and a data-provided method is still found by its name.
+     */
+    public function strictStubsAttributeIsReadFromTheRunningTest(): void
+    {
+        [$exit, $output] = $this->runPhpunit('StrictStubsAttribute');
+
+        Assert::same($exit, 1);
+        Assert::string($output)
+            ->contains('never used')
+            ->contains('StrictStubsAttributeTest::testTheClassAttributeFailsAnUnusedStub');
+        Assert::same($this->summaryCount($output, 'Failures'), 1);
+        Assert::same($this->summaryCount($output, 'Risky'), 0);
+        Assert::string($output)->contains('Tests: 4');
+    }
+
+    /**
      * `#[DoesNotPerformAssertions]` is written on tests of the form "this
      * should simply not throw", and such a class inherits the trait from a
      * project-wide base class along with everything else. Counting an

@@ -21,7 +21,8 @@ composer require --dev rasuvaeff/understudy-phpunit
 - A failing body keeps its own exception — verification never runs for it.
 - An `#[After]` hook resets the context unconditionally; doubles never leak between tests.
 - An `#[Before]` guard fails with a diagnostic when the previous context was not idle.
-- Override `understudyStrictStubs(): bool` in a base class to fail unused stubs project-wide. Default: false.
+- `#[Rasuvaeff\Understudy\StrictStubs]` / `#[StrictStubs(false)]` (core attribute, `rasuvaeff/understudy` ^1.2) on the test class or method switches strict stubs per test. Resolution: method attribute > running class > its parents > `understudyStrictStubs()`.
+- Override `understudyStrictStubs(): bool` in a base class to fail unused stubs project-wide; it applies only where no `#[StrictStubs]` attribute does. Default: false.
 - An override of `assertPostConditions()` that does not compose the trait's is caught: a passing body with doubles that never reached verification fails in the `#[After]` hook (which still resets).
 - If the class overrides `assertPostConditions()`, compose explicitly with trait alias (`as understudyAssertPostConditions`) — silent shadowing disables verification.
 - The trait calls `parent::assertPostConditions()` BEFORE verifying: your own post-conditions always run, and their failure is reported first.
@@ -57,6 +58,6 @@ final class CheckoutTest extends TestCase
 
 | Member | Kind | Purpose |
 |---|---|---|
-| `Rasuvaeff\Understudy\PhpUnit\UnderstudyPHPUnitIntegration` | trait | verify-after-success, reset-in-`#[After]`, `#[Before]` guard, `understudyStrictStubs(): bool` |
+| `Rasuvaeff\Understudy\PhpUnit\UnderstudyPHPUnitIntegration` | trait | verify-after-success, reset-in-`#[After]`, `#[Before]` guard, `#[StrictStubs]` per class/method, `understudyStrictStubs(): bool` fallback |
 
 All doubling operations live in the core package `rasuvaeff/understudy`.
