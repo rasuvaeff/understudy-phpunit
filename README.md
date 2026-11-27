@@ -42,7 +42,7 @@ teardown.
 ## Requirements
 
 - PHP 8.3 – 8.6
-- `phpunit/phpunit` (`^11.5 || ^12.0 || ^13.0`)
+- `phpunit/phpunit` (`^11.5.50 || ^12.5.8 || ^13.0`)
 - `rasuvaeff/understudy` (`^1.2`)
 
 Pest works too — it runs on PHPUnit, so the same trait applies through
